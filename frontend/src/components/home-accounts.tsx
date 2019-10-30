@@ -1,11 +1,11 @@
 import React from "react";
 
-const HomeDetails: React.FC = () => {
+const HomeAccounts: React.FC = () => {
   return (
     <div>
       <div>
         <div>
-          <h1>Home Details Summary Card</h1>
+          <h1>Home Accounts Summary Card</h1>
         </div>
         <div>
           <p> Summary info here</p>
@@ -21,4 +21,4 @@ const HomeDetails: React.FC = () => {
   );
 };
 
-export default HomeDetails;
+export default HomeAccounts;

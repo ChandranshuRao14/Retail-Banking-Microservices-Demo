@@ -1,5 +1,6 @@
 import React from "react";
 import HomeDetails from "../components/home-details";
+import HomeAccounts from "../components/home-accounts";
 import "../styles/home.css";
 
 const Home: React.FC = () => {
@@ -12,10 +13,9 @@ const Home: React.FC = () => {
       </div>
       <div className="Home-Container-Bottom">
         <div className="Home-Container-Left">
-          <h1>Left Side</h1>
+          <HomeAccounts></HomeAccounts>
         </div>
         <div className="Home-Container-Right">
-          <h1>Right Side</h1>
           <HomeDetails></HomeDetails>
         </div>
       </div>
