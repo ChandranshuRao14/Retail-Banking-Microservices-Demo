@@ -46,11 +46,12 @@ func registerHandlers() {
 	r.HandleFunc("/", createHandler).Methods("POST")
 	r.HandleFunc("/user/{id}", readHandler).Methods("GET")
 	r.HandleFunc("/user/delete/{id}", deleteHandler).Methods("DELETE")
+	r.HandleFunc("/user/update/{id}", updateHandler).Methods("PUT")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
 // createHandler adds a user to the database.
-func createhHandler(w http.ResponseWriter, r *http.Request) {
+func createHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 
 	var user User
@@ -86,15 +87,60 @@ func readHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(res)
 }
 
-// func deleteHandler(w http.ResponseWriter, r *http.Request) {
-// 	ctx := appengine.NewContext(r)
-// 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/delete/"))
-// 	if err != nil {
-// 		// change error to invalid ID (should be an int)
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-// }
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/delete/"))
+	if err != nil {
+		// todo: change error to invalid ID (should be an int)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	user := make([]*User, 0)
+	q := datastore.NewQuery("User").Filter("UserID =", id)
+	// have to use a slice to save the result? or have to use getall?
+	keys, err := dsClient.GetAll(ctx, q, &user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// todo: fix error message
+	if err := dsClient.DeleteMulti(ctx, keys); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return		
+	}
+}
+
+// createHandler adds a user to the database.
+func updateHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+
+	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/update/"))
+	if err != nil {
+		// todo: change error to invalid ID (should be an int)
+		http.Error(w, err.Error(), http.StatusPaymentRequired)
+		return
+	}
+	users := make([]*User, 0)
+	q := datastore.NewQuery("User").Filter("UserID =", id)
+	// have to use a slice to save the result? or have to use getall?
+	keys, err := dsClient.GetAll(ctx, q, &users)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	var user User
+	err = json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if _, err := dsClient.Put(ctx, keys[0], &user); err != nil {
+		http.Error(w, err.Error(), http.StatusPermanentRedirect)
+		return
+	}
+}
 
 
 // 	// Respond to App Engine and Compute Engine health checks.
