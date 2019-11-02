@@ -22,6 +22,10 @@ import (
 type User struct {
 	UserID int64 `json: "userid"`
 	Username string `json: "username"`
+	Address string `json: "address"`
+	Email string `json: "email"`
+	Password string `json: "password"`
+	PhoneNumber int64 `json: "phonenumber"`
 	AccountBalance float64 `json: "accountbalance"`
 }
 
@@ -31,8 +35,10 @@ func main() {
 	ctx := context.Background()
 
 	var err error
-	// project ID
-	dsClient, err = datastore.NewClient(ctx, "meganzhao-test")
+	// TODO: get project ID from gae context
+	//dsClient, err = datastore.NewClient(ctx, "meganzhao-test")
+	dsClient, err = datastore.NewClient(ctx, appengine.AppID(ctx))
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,10 +49,10 @@ func main() {
 
 func registerHandlers() {
 	r := mux.NewRouter()
-	r.HandleFunc("/", createHandler).Methods("POST")
+	r.HandleFunc("/user", createHandler).Methods("POST")
 	r.HandleFunc("/user/{id}", readHandler).Methods("GET")
-	r.HandleFunc("/user/delete/{id}", deleteHandler).Methods("DELETE")
-	r.HandleFunc("/user/update/{id}", updateHandler).Methods("PUT")
+	r.HandleFunc("/user/{id}", deleteHandler).Methods("DELETE")
+	r.HandleFunc("/user/{id}", updateHandler).Methods("PUT")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
@@ -89,7 +95,7 @@ func readHandler(w http.ResponseWriter, r *http.Request) {
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
-	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/delete/"))
+	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/"))
 	if err != nil {
 		// todo: change error to invalid ID (should be an int)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -114,7 +120,7 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 func updateHandler(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 
-	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/update/"))
+	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/"))
 	if err != nil {
 		// todo: change error to invalid ID (should be an int)
 		http.Error(w, err.Error(), http.StatusPaymentRequired)
