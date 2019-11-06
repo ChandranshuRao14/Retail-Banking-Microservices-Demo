@@ -45,9 +45,9 @@ A microservice where users can create, update, retrieve, and delete their profil
 
 #### Diagram
 
-	             +------------------------+     
-		     |          |             |  
-	             |  Web UI  |             |                  
+                     +------------------------+     
+                     |          |             |  
+                     |  Web UI  |             |                  
               +------|          |  Golang     |                                     
               |      +----------+  AppEngine  |
               |      |          |             |
