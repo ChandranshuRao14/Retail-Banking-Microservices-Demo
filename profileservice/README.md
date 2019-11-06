@@ -57,13 +57,13 @@ A microservice where users can create, update, retrieve, and delete their profil
 
                              +------------------------+     
                              |          |             |  
-			     |  Web UI  |             |                  
-          +------------------|    	|  Golang     |                                     
+                             |  Web UI  |             |                  
+          +------------------|          |  Golang     |                                     
           |                  +----------+  AppEngine  |
-          |                  | 	        |             |
-	                     | JSON List|             |
+          |                  |          |             |
+          |                  | JSON List|             |
           |                  +-----^------------+-----+
-          |            |                |                          
+          |                             |                          
       +--v------------+----+            |                   
       |    User Profile    |            |                           
       |                    |            |                            
