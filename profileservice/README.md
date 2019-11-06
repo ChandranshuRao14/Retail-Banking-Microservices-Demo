@@ -46,24 +46,23 @@ A microservice where users can create, update, retrieve, and delete their profil
 #### Diagram
 
 	             +------------------------+     
-		     | 	        |   	      |  
+		     |          |             |  
 	             |  Web UI  |             |                  
               +------|          |  Golang     |                                     
               |      +----------+  AppEngine  |
-              |      | 	        |             |
+              |      |          |             |
               |      | JSON List|             |
               |      +-----^------------+-----+
               |            |            |                          
-      +--v------------+----+       	|                   
+      +--v------------+----+            |                   
       |    User Profile    |            |                           
-      |                    |       	|                            
-      |Username            |       	| +----------+                              
-      |Email               |       	+-> Datastore|                              
+      |                    |            |                            
+      |Username            |            | +----------+                              
+      |Email               |            +-> Datastore|                              
       |Account blance      |              |          |                              
       |Address             |              |          |                              
       |                    |              +----------+                              
       +--------------------+    
-
 
 Golang Google AppEngine (GAE) stores user profiles in Datastore and allow users to create, read, update, and delete their profile using REST APIs
 
