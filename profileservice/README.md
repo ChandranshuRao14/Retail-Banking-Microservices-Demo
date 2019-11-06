@@ -69,7 +69,7 @@ A microservice where users can create, update, retrieve, and delete their profil
               |                    |            |                            
               |Username            |            | +----------+                              
               |Email               |            +-> Datastore|                              
-              |Account blance      |              |          |                              
+              |Account balance     |              |          |                              
               |Address             |              |          |                              
               |                    |              +----------+                              
               +--------------------+    
