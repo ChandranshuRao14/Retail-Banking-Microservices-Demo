@@ -23,7 +23,7 @@ A microservice where users can create, update, retrieve, and delete their profil
     * In the GCP Console, go to the **[Create service account key](https://console.cloud.google.com/apis/credentials/serviceaccountkey?_ga=2.142840501.-1637323123.1562822098)** page.
     * From the **Service account** list, select **New service account**.
     * In the **Service account name** field, enter a name.
-    * From the **Role** list, select **Datastore** > **Cloud Datastore User**.
+    * From the **Role** list, select **Datastore** > **Cloud Datastore User** and  **App Engine** > **App Engine Admin**
     * Click **Create**. A JSON file that contains your key downloads to your computer.
 	    * If you are using Cloud Shell, move the JSON file to the shell
     * Save the JSON file path as an environment varibale
