@@ -56,12 +56,12 @@ A microservice where users can create, update, retrieve, and delete their profil
 #### Pipeline
 
                              +------------------------+     
-                             | 	        |   	      |  
+                             |          |             |  
 			     |  Web UI  |             |                  
           +------------------|    	|  Golang     |                                     
           |                  +----------+  AppEngine  |
           |                  | 	        |             |
-		             | JSON List|             |
+	                     | JSON List|             |
           |                  +-----^------------+-----+
           |            |                |                          
       +--v------------+----+            |                   
