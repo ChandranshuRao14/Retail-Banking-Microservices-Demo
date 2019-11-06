@@ -39,9 +39,33 @@ A microservice where users can create, update, retrieve, and delete their profil
     gcloud app deploy app.yaml --project [project-id]
     ```
     
-5.  Congratulations! You can set up your profile service at  `your-app-id.appspot.com`
+5.  Congratulations! You can now set up your profile service at  `your-app-id.appspot.com`
 
 
+
+#### Diagram
+
+	             +------------------------+     
+				 | 	        |   		  |  
+			     |  Web UI  |             |                  
+          +------|    		|  Golang     |                                     
+          |      +----------+  AppEngine  |
+          |      | 			|			  |
+		         | JSON List|    		  |
+          |      +-----^------------+-----+
+          |            |            |                          
+      +--v------------+----+       	|                   
+      |    User Profile    |        |                           
+      |                    |       	|                            
+      |Username            |       	| +----------+                              
+      |Email               |       	+-> Datastore|                              
+      |Account blance      |          |          |                              
+      |Address             |          |          |                              
+      |                    |          +----------+                              
+      +--------------------+    
+
+
+Golang Google AppEngine (GAE) stores user profiles in Datastore and allow users to create, read, update, and delete their profile using REST APIs
 
 
 ## License
