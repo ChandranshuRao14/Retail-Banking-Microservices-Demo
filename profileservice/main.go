@@ -50,6 +50,7 @@ func main() {
 func registerHandlers() {
 	r := mux.NewRouter()
 	r.HandleFunc("/user", createHandler).Methods("POST")
+	r.HandleFunc("/user", listHandler).Methods("GET")
 	r.HandleFunc("/user/{id}", readHandler).Methods("GET")
 	r.HandleFunc("/user/{id}", deleteHandler).Methods("DELETE")
 	r.HandleFunc("/user/{id}", updateHandler).Methods("PUT")
@@ -72,6 +73,19 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func listHandler (w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	user := make([]*User, 0)
+	q := datastore.NewQuery("User")
+	// have to use a slice to save the result? or have to use getall?
+	if _, err := dsClient.GetAll(ctx, q, &user); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	res, _ := json.Marshal(&user)
+	w.Write(res)	
 }
 
 func readHandler(w http.ResponseWriter, r *http.Request) {
