@@ -19,7 +19,7 @@ A microservice where users can create, update, retrieve, and delete their profil
 
 ## Deployment
 
-1. (Optional but recommended) Set up an App Engine service account for authentication
+<!-- 1. (Optional but recommended) Set up an App Engine service account for authentication
     * In the GCP Console, go to the **[Create service account key](https://console.cloud.google.com/apis/credentials/serviceaccountkey?_ga=2.142840501.-1637323123.1562822098)** page.
     * From the **Service account** list, select **New service account**.
     * In the **Service account name** field, enter a name.
@@ -32,7 +32,15 @@ A microservice where users can create, update, retrieve, and delete their profil
 	     For example:
      ```  export GOOGLE_APPLICATION_CREDENTIALS="/home/user/Downloads/[FILE_NAME].json"```
     (note: this variable only applies to your current shell session, so you need to set the variable again if you open a new session.)
-2. Enable APIs
+    -->
+1.  (Optional but recommended) Grant the default App Engine service account more granular roles.
+	*  In the GCP Console, go to the **IAM & admin** page.
+	* Locate the member **Compute Engine default service account"** and then click the edit button on the right.
+	* Click the **Project Editor** role to **App Engine** > **App Engine Deployer**.
+	* Click **ADD ANOTHER ROLE** and select **Cloud Build** > **Cloud Build Editor**.
+	* Click **ADD ANOTHER ROLE** and select **Datastore** >  **Cloud Datastore User**.
+	* Click **ADD ANOTHER ROLE** and select **Storage** > **Storage Admin**.
+2. Enable APIs.
     * Go to the [GCP Console API Library](https://console.cloud.google.com/apis/library?project=_). 
 	* Search Cloud Build. 
 	* On the Cloud Build API page, click **ENABLE**.
