@@ -1,7 +1,7 @@
-runtime: go111
-# env: flex
+runtime: custom
+env: flex
 
 # handlers:
 # - url: /user/.*
 #   login: admin
-#   script: auto
+#   script: autoy
