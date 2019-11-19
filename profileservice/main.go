@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 	"encoding/json"
-	//"os"
+	"os"
 	//"io"
 	"log"
 	//"fmt"
@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	//"github.com/gorilla/handlers"
 	"strconv"
-	"google.golang.org/appengine"
+	//"google.golang.org/appengine"
 	//"google.golang.org/appengine/datastore"
 	"cloud.google.com/go/datastore"
 )
@@ -36,15 +36,15 @@ func main() {
 
 	var err error
 	// TODO: get project ID from gae context
-	//dsClient, err = datastore.NewClient(ctx, "meganzhao-test")
-	dsClient, err = datastore.NewClient(ctx, appengine.AppID(ctx))
+	dsClient, err = datastore.NewClient(ctx, os.Getenv("PROJECT_ID"))
+	//dsClient, err = datastore.NewClient(ctx, appengine.AppID(ctx))
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	registerHandlers()
-	appengine.Main()
+	//appengine.Main()
 }
 
 func registerHandlers() {
@@ -59,8 +59,8 @@ func registerHandlers() {
 
 // createHandler adds a user to the database.
 func createHandler(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
-
+	//ctx := appengine.NewContext(r)
+	ctx := context.Background()
 	var user User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -76,7 +76,8 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func listHandler (w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
+	//ctx := appengine.NewContext(r)
+	ctx := context.Background()
 	user := make([]*User, 0)
 	q := datastore.NewQuery("User")
 	// have to use a slice to save the result? or have to use getall?
@@ -89,7 +90,8 @@ func listHandler (w http.ResponseWriter, r *http.Request) {
 }
 
 func readHandler(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
+	//ctx := appengine.NewContext(r)
+	ctx := context.Background()
 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/"))
 	if err != nil {
 		// change error to invalid ID (should be an int)
@@ -108,7 +110,8 @@ func readHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
+	//ctx := appengine.NewContext(r)
+	ctx := context.Background()
 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/"))
 	if err != nil {
 		// todo: change error to invalid ID (should be an int)
@@ -132,8 +135,8 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 
 // createHandler adds a user to the database.
 func updateHandler(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
-
+	//ctx := appengine.NewContext(r)
+	ctx := context.Background()
 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/"))
 	if err != nil {
 		// todo: change error to invalid ID (should be an int)
