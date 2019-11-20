@@ -3,9 +3,11 @@
 ## Quickstart
 
 1. Install requirements
-   - skaffold ≥v1.0.1
-   - kubectl
-   - Docker
+
+   - [skaffold](https://skaffold.dev/docs/install/)
+
+   - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+   - [Docker](https://docs.docker.com/v17.12/install/)
 2. Generate kubeconfig for your kubernetes cluster. The services will be deployed to this cluster
    - For local development you can use k8s with Docker Desktop
    - You can also configure kubeconfig for a remote cluster. With gcloud, `gcloud container clusters get-credentials [$CLUSTER_NAME] --project [$PROJECT_NAME] --[region/zone] [$REGION/ZONE]`
