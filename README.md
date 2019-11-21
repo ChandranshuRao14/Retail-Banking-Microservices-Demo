@@ -10,7 +10,10 @@
    - [Docker](https://docs.docker.com/v17.12/install/)
 2. Generate kubeconfig for your kubernetes cluster. The services will be deployed to this cluster
    - For local development you can use k8s with Docker Desktop
-   - You can also configure kubeconfig for a remote cluster. With gcloud, `gcloud container clusters get-credentials [$CLUSTER_NAME] --project [$PROJECT_NAME] --[region/zone] [$REGION/ZONE]`
+   - You can also configure kubeconfig for a remote cluster. 
+        - With gcloud, to create cluster `gcloud container clusters create [$CLUSTER_NAME] --project [$PROJECT_NAME] --[region/zone] [$REGION/ZONE]`
+
+        - To generate kubeconfig   `gcloud container clusters get-credentials [$CLUSTER_NAME] --project [$PROJECT_NAME] --[region/zone] [$REGION/ZONE]`
 3. Configure service account secret for the services to use.
    - Run `kubectl create secret generic svc-key --from-file [$ABSOLUTE_PATH_TO_KEY]/service-acc.json` to make a k8s secret to store credentials
 4. Configure project id as a configmap for the services to use.
