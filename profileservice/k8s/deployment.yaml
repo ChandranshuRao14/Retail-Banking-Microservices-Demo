@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-app
+spec:
+  selector:
+    matchLabels:
+      app: go-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: go-app
+    spec:
+      containers:
+        - name: go-app-container
+          image: profileservice
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: "PROJECT_ID"
+              valueFrom:
+                configMapKeyRef:
+                  name: env-vars
+                  key: env.project-id
+            - name: "GOOGLE_APPLICATION_CREDENTIALS"
+              value: "/var/goog/secrets/service-acc.json"
+          volumeMounts:
+            - name: "service-account"
+              mountPath: "/var/goog/secrets"
+              readOnly: true
+      volumes:
+      - name: "service-account"
+        secret:
+          secretName: svc-key

@@ -1,9 +1,10 @@
 #version number
 FROM golang:latest 
 WORKDIR /app
-ADD . /app
+#cache dependencies for faster builds
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
 RUN go build -o main . 
-COPY ./svc.json /app
-ENV GOOGLE_APPLICATION_CREDENTIALS /app/svc.json
 ENTRYPOINT ["/app/main"]
 EXPOSE 8080

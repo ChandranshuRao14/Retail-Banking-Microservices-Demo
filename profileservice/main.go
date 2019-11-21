@@ -2,9 +2,10 @@ package main
 
 import (
 	"context"
-	"net/http"
 	"encoding/json"
+	"net/http"
 	"os"
+
 	//"io"
 	"log"
 	//"fmt"
@@ -13,6 +14,10 @@ import (
 	"github.com/gorilla/mux"
 	//"github.com/gorilla/handlers"
 	"strconv"
+
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
+
 	//"google.golang.org/appengine"
 	//"google.golang.org/appengine/datastore"
 	"cloud.google.com/go/datastore"
@@ -20,12 +25,12 @@ import (
 
 // Kind in Datastore
 type User struct {
-	UserID int64 `json: "userid"`
-	Username string `json: "username"`
-	Address string `json: "address"`
-	Email string `json: "email"`
-	Password string `json: "password"`
-	PhoneNumber int64 `json: "phonenumber"`
+	UserID         int64   `json: "userid"`
+	Username       string  `json: "username"`
+	Address        string  `json: "address"`
+	Email          string  `json: "email"`
+	Password       string  `json: "password"`
+	PhoneNumber    int64   `json: "phonenumber"`
 	AccountBalance float64 `json: "accountbalance"`
 }
 
@@ -35,8 +40,12 @@ func main() {
 	ctx := context.Background()
 
 	var err error
+	creds, err := google.CredentialsFromJSON(ctx, []byte(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")), datastore.ScopeDatastore)
+	if err != nil {
+		// TODO: handle error.
+	}
 	// TODO: get project ID from gae context
-	dsClient, err = datastore.NewClient(ctx, os.Getenv("PROJECT_ID"))
+	dsClient, err = datastore.NewClient(ctx, os.Getenv("PROJECT_ID"), option.WithCredentials(creds))
 	//dsClient, err = datastore.NewClient(ctx, appengine.AppID(ctx))
 
 	if err != nil {
@@ -75,7 +84,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func listHandler (w http.ResponseWriter, r *http.Request) {
+func listHandler(w http.ResponseWriter, r *http.Request) {
 	//ctx := appengine.NewContext(r)
 	ctx := context.Background()
 	user := make([]*User, 0)
@@ -86,7 +95,7 @@ func listHandler (w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	res, _ := json.Marshal(&user)
-	w.Write(res)	
+	w.Write(res)
 }
 
 func readHandler(w http.ResponseWriter, r *http.Request) {
@@ -129,7 +138,7 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	// todo: fix error message
 	if err := dsClient.DeleteMulti(ctx, keys); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return		
+		return
 	}
 }
 
@@ -165,26 +174,14 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 // 	// Respond to App Engine and Compute Engine health checks.
 // 	// Indicate the server is healthy.
 // 	// r.Methods("GET").Path("/_ah/health").HandlerFunc(
 // 	// 	func(w http.ResponseWriter, r *http.Request) {
 // 	// 		w.Write([]byte("ok"))
 // 	// 	})
-		
+
 // 	// Delegate all of the HTTP routing and serving to the gorilla/mux router.
 // 	// Log all requests using the standard Apache format.
 // 	// http.Handle("/", handlers.CombinedLoggingHandler(os.Stderr, r))
 // }
-
-
-
-
-
-
-
-
-
-
-
