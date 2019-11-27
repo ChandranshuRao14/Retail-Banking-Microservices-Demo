@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transfer-app
+spec:
+  selector:
+    matchLabels:
+      app: transfer-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: transfer-app
+    spec:
+      containers:
+        - name: transfer-app-container
+          image: transferservice
+          ports:
+            - name: http
+              containerPort: 5000
+          env:
+            - name: "PROJECT_ID"
+              valueFrom:
+                configMapKeyRef:
+                  name: env-vars
+                  key: env.project-id
+            - name: "GOOGLE_APPLICATION_CREDENTIALS"
+              value: "/var/goog/secrets/service-acc.json"
+          volumeMounts:
+            - name: "service-account"
+              mountPath: "/var/goog/secrets"
+              readOnly: true
+      volumes:
+      - name: "service-account"
+        secret:
+          secretName: svc-key

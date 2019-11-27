@@ -1,0 +1,7 @@
+FROM python:3.8.0
+WORKDIR api
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
+ENV AM_I_IN_A_DOCKER_CONTAINER true
+COPY . .
+CMD ["python", "server.py" ,"-t"]
