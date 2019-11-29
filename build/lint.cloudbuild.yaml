@@ -20,3 +20,10 @@ steps:
   - '-c'
   - |
     make lint_test_python
+- id: 'Lint tests go'
+  name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    make lint_test_go
