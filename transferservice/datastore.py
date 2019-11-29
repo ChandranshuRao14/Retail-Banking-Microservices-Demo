@@ -53,7 +53,7 @@ class datastoreHelper:
             [list] -- [list of matching entities]
         """
         query = self._client.query(kind=self._kind)
-        # query.add_filter("deleted", "=", False)
+        query.add_filter(*filter)
         transfers_list = []
         transfers = list(query.fetch())
         for entity in transfers:
