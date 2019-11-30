@@ -20,4 +20,5 @@ steps:
   args:
   - '-c'
   - |
-    make test_transferservice
+    docker run --rm -it  -e GOOGLE_APPLICATION_CREDENTIALS_JSON -e PROJECT_ID \
+	  $(docker build -q -f transferservice/Dockerfile-pytest transferservice/)
