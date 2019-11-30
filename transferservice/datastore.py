@@ -14,10 +14,14 @@ class datastoreHelper:
     ):
         if os.getenv("GOOGLE_APPLICATION_CREDENTIALS_PATH"):
             self._creds = service_account.Credentials.from_service_account_file(creds)
-        else:
+        elif os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"):
             self._creds = service_account.Credentials.from_service_account_info(
                 json.loads(creds_json)
             )
+        else:
+            raise Exception("No Credentials set")
+        if os.getenv("PROJECT_ID") is None:
+            raise Exception("No Project ID set")
         self._project = project
         self._kind = kind
         self._client = datastore.Client(project=project, credentials=self._creds)
