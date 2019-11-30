@@ -13,12 +13,27 @@
 # limitations under the License.
 
 steps:
-- id: 'Transfer service tests'
+- id: 'Get svc'
   waitFor: ['-']
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    gcloud kms decrypt --ciphertext-file=build/secrets.json.enc --plaintext-file=secrets.json \
+    --location=global --keyring=${_KEY_RING} --key=${_KEY}
+
+- id: 'Transfer service tests'
+  waitFor: ['Get svc']
   name: 'gcr.io/cloud-builders/docker'
   entrypoint: 'bash'
   args:
   - '-c'
   - |
-    docker run --rm -it  -e GOOGLE_APPLICATION_CREDENTIALS_JSON -e PROJECT_ID \
-	  $(docker build -q -f transferservice/Dockerfile-pytest transferservice/)
+    export GOOGLE_APPLICATION_CREDENTIALS_JSON=$(< secrets.json) && \
+    export PROJECT_ID=$PROJECT_ID && \
+    docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS_JSON -e PROJECT_ID \
+    $(docker build -q -f transferservice/Dockerfile-pytest transferservice/)
+substitutions:
+    _KEY_RING: test-keyring
+    _KEY: test-svc
