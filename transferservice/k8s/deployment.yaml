@@ -24,7 +24,7 @@ spec:
                 configMapKeyRef:
                   name: env-vars
                   key: env.project-id
-            - name: "GOOGLE_APPLICATION_CREDENTIALS"
+            - name: "GOOGLE_APPLICATION_CREDENTIALS_PATH"
               value: "/var/goog/secrets/service-acc.json"
           volumeMounts:
             - name: "service-account"
