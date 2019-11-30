@@ -9,3 +9,10 @@ lint_test_go:
 lint_test:
 	make lint_test_python ; \
 	make lint_test_go
+.PHONY: test_transferservice
+test_transferservice:
+	docker run --rm -it  -e GOOGLE_APPLICATION_CREDENTIALS_JSON -e PROJECT_ID \
+	$$(docker build -q -f transferservice/Dockerfile-pytest transferservice/)
+.PHONY: all_test
+all_test:
+	make test_transferservice

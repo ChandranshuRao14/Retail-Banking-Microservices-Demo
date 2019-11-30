@@ -1,4 +1,4 @@
-import os
+import os, json
 from transfer import Transfer
 from google.cloud import datastore
 from google.oauth2 import service_account
@@ -7,11 +7,17 @@ from google.oauth2 import service_account
 class datastoreHelper:
     def __init__(
         self,
-        creds=os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+        creds=os.getenv("GOOGLE_APPLICATION_CREDENTIALS_PATH"),
+        creds_json=os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"),
         project=os.getenv("PROJECT_ID"),
         kind="transfer",
     ):
-        self._creds = service_account.Credentials.from_service_account_file(creds)
+        if os.getenv("GOOGLE_APPLICATION_CREDENTIALS_PATH"):
+            self._creds = service_account.Credentials.from_service_account_file(creds)
+        else:
+            self._creds = service_account.Credentials.from_service_account_info(
+                json.loads(creds_json)
+            )
         self._project = project
         self._kind = kind
         self._client = datastore.Client(project=project, credentials=self._creds)
