@@ -20,11 +20,16 @@ build:
       context: ./frontend/
     - image: profileservice
       context: ./profileservice/
+    - image: transferservice
+      context: ./transferservice/
+      docker:
+        dockerfile: Dockerfile-prod
 deploy:
   kubectl:
     manifests:
       - ./frontend/k8s/*
       - ./profileservice/k8s/*
+      - ./transferservice/k8s/*
 portForward:
   - resourceType: deployment
     resourceName: frontend
@@ -34,6 +39,10 @@ portForward:
     resourceName: profileservice
     port: 8080
     localPort: 8080
+  - resourceType: deployment
+    resourceName: transferservice
+    port: 5000
+    localPort: 5000
 profiles:
 #for remote builds
 - name: gcb
