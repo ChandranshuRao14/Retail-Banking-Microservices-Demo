@@ -4,16 +4,25 @@ info:
   description: Transfer service API
   version: 1.0.0
 servers:
-- url: "/api"
+  - url: "/api"
 paths:
-  /transfer:
+  /transfer/{userId}:
     get:
       tags:
-      - transfer
+        - transfer
       summary: returns all transfers
       description: |
         Return all the account transfers to other bank accounts (different from transactions, these are only account transfer ie. wire transfers)
       operationId: transferHandler.getAllTransfers
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 214231
       responses:
         200:
           description: array of transfer objs
@@ -26,18 +35,27 @@ paths:
           content: {}
     post:
       tags:
-      - transfer
+        - transfer
       summary: add a new transfer object
       description: |
         Post to Cloud Datastore, with the request body as the new transfer in JSON
       operationId: transferHandler.postTransfer
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 214231
       requestBody:
         description: Transfer to add
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/newTransfer'
+              $ref: "#/components/schemas/newTransfer"
       responses:
         201:
           description: transfer id
@@ -48,10 +66,10 @@ paths:
         400:
           description: bad input parameter
           content: {}
-  /transfer/{transferId}:
+  /transfer/{userId}/{transferId}:
     get:
       tags:
-      - transfer
+        - transfer
       summary: Return the transfer info for transferId {id}
       description: |
         Return the transfer info for transferId {id}
@@ -64,6 +82,14 @@ paths:
           schema:
             type: integer
             format: int64
+        - name: userId
+          in: path
+          description: ID of user
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 214231
       responses:
         200:
           description: transfer obj
@@ -75,13 +101,13 @@ paths:
           description: bad input parameter
           content: {}
     put:
-        tags:
+      tags:
         - transfer
-        summary: modify an existing transfer object
-        description: |
-          In the request body as the updated profile in JSON, update the transfer with {id}
-        operationId: transferHandler.updateTransfer
-        parameters:
+      summary: modify an existing transfer object
+      description: |
+        In the request body as the updated profile in JSON, update the transfer with {id}
+      operationId: transferHandler.updateTransfer
+      parameters:
         - name: transferId
           in: path
           description: ID of transfer to update
@@ -89,31 +115,39 @@ paths:
           schema:
             type: integer
             format: int64
-        requestBody:
-          description: Transfer to modify
+        - name: userId
+          in: path
+          description: ID of the user
           required: true
+          schema:
+            type: integer
+            format: int64
+          example: 214231
+      requestBody:
+        description: Transfer to modify
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/newTransfer"
+      responses:
+        204:
+          description: new transfer object with updated data and same id
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/transferObj'
-        responses:
-          204:
-            description: new transfer object with updated data and same id
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/transferObj"
-          400:
-            description: bad input parameter
-            content: {}
+                $ref: "#/components/schemas/transferObj"
+        400:
+          description: bad input parameter
+          content: {}
     delete:
-        tags:
+      tags:
         - transfer
-        summary: delete an existing transfer object
-        description: |
-          Delete the transfer with {id}
-        operationId: transferHandler.deleteTransfer
-        parameters:
+      summary: delete an existing transfer object
+      description: |
+        Delete the transfer with {id}
+      operationId: transferHandler.deleteTransfer
+      parameters:
         - name: transferId
           in: path
           description: ID of transfer to delete
@@ -121,12 +155,20 @@ paths:
           schema:
             type: integer
             format: int64
-        responses:
-          204:
-            description: successfully deleted transfer
-          400:
-            description: bad input parameter
-            content: {}
+        - name: userId
+          in: path
+          description: ID of user
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 214231
+      responses:
+        204:
+          description: successfully deleted transfer
+        400:
+          description: bad input parameter
+          content: {}
 components:
   schemas:
     newTransfer:
@@ -134,34 +176,37 @@ components:
       properties:
         amount:
           type: string
-          example: 2000
+          example: "2000"
         routingNumber:
           type: string
-          example: 309091348
+          example: "309091348"
         accountNumber:
           type: string
-          example: 29483490
+          example: "29483490"
     transferIdObj:
       type: object
       properties:
         transferId:
           type: string
-          example: 20931
+          example: "20931"
     transferObj:
       type: object
       properties:
         transferId:
           type: string
-          example: 20931
+          example: "20931"
         amount:
           type: string
-          example: 2000
+          example: "2000"
+        userId:
+          type: string
+          example: "43243"
         routingNumber:
           type: string
-          example: 309091348
+          example: "309091348"
         accountNumber:
           type: string
-          example: 29483490
+          example: "29483490"
     transferObjArray:
       type: array
       items:

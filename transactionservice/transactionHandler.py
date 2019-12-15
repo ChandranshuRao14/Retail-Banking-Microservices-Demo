@@ -4,7 +4,7 @@ from transaction import Transaction
 from datastore import datastoreHelper
 
 
-def postTransaction():
+def postTransaction(userId):
     """add a new transaction to db
 
     Returns:
@@ -12,7 +12,9 @@ def postTransaction():
     """
     try:
         if validateTransactionBody(connexion.request.json) is True:
-            transactionId = datastoreHelper().putEntity(Transaction(**connexion.request.json))
+            transactionId = datastoreHelper().putEntity(
+                Transaction(userId=userId, **connexion.request.json)
+            )
             return {"transactionId": transactionId}, 201
         else:
             return validateTransactionBody(connexion.request.json), 400
@@ -22,14 +24,16 @@ def postTransaction():
         return False, 400
 
 
-def getAllTransactions():
+def getAllTransactions(userId):
     """get all transactions in db
 
     Returns:
         [Response] -- [array transactions in db,response code]
     """
     try:
-        transactions = datastoreHelper().getEntityByFilter(["deleted", "=", False])
+        transactions = datastoreHelper().getEntityByFilter(
+            [["deleted", "=", False], ["userId", "=", userId]]
+        )
         for transaction in transactions:
             transaction.pop("deleted")
         return transactions, 200
@@ -40,7 +44,7 @@ def getAllTransactions():
     return None
 
 
-def getTransaction(transactionId):
+def getTransaction(transactionId, userId):
     """get transaction in db by Entity id
 
     Returns:
@@ -56,7 +60,7 @@ def getTransaction(transactionId):
         return False, 400
 
 
-def updateTransaction(transactionId):
+def updateTransaction(transactionId, userId):
     """update transaction in db with matching Entity id
 
     Returns:
@@ -65,7 +69,7 @@ def updateTransaction(transactionId):
     try:
         if validateTransactionBody(connexion.request.json) is True:
             transaction = datastoreHelper().updateEntity(
-                transactionId, Transaction(**connexion.request.json)
+                transactionId, Transaction(userId=userId, **connexion.request.json)
             )
             transaction.get_dict().pop("deleted", None)
             return transaction.get_dict(), 200
@@ -78,7 +82,7 @@ def updateTransaction(transactionId):
     return None
 
 
-def deleteTransaction(transactionId):
+def deleteTransaction(transactionId, userId):
     try:
         transaction = datastoreHelper().getEntity(transactionId)
         transaction.deleted = True

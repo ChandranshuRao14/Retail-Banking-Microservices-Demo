@@ -53,17 +53,18 @@ class datastoreHelper:
         transfer.transferId = id
         return transfer
 
-    def getEntityByFilter(self, filter):
+    def getEntityByFilter(self, filters):
         """get all entities matching a filter
 
         Arguments:
-            filter {[array]} -- [filter for datastore of the form ["key","operator","val"]]
+            filter {[[array of filters]]} -- [filters for datastore of the form ["key","operator","val"]]
 
         Returns:
             [list] -- [list of matching entities]
         """
         query = self._client.query(kind=self._kind)
-        query.add_filter(*filter)
+        for filter in filters:
+            query.add_filter(*filter)
         transfers_list = []
         transfers = list(query.fetch())
         for entity in transfers:

@@ -4,7 +4,7 @@ from transfer import Transfer
 from datastore import datastoreHelper
 
 
-def postTransfer():
+def postTransfer(userId):
     """add a new transfer to db
 
     Returns:
@@ -12,7 +12,9 @@ def postTransfer():
     """
     try:
         if validateTransferBody(connexion.request.json) is True:
-            transferId = datastoreHelper().putEntity(Transfer(**connexion.request.json))
+            transferId = datastoreHelper().putEntity(
+                Transfer(userId=userId, **connexion.request.json)
+            )
             return {"transferId": transferId}, 201
         else:
             return validateTransferBody(connexion.request.json), 400
@@ -22,14 +24,16 @@ def postTransfer():
         return False, 400
 
 
-def getAllTransfers():
+def getAllTransfers(userId):
     """get all transfers in db
 
     Returns:
         [Response] -- [array transfers in db,response code]
     """
     try:
-        transfers = datastoreHelper().getEntityByFilter(["deleted", "=", False])
+        transfers = datastoreHelper().getEntityByFilter(
+            [["deleted", "=", False], ["userId", "=", userId]]
+        )
         for transfer in transfers:
             transfer.pop("deleted")
         return transfers, 200
@@ -40,7 +44,7 @@ def getAllTransfers():
     return None
 
 
-def getTransfer(transferId):
+def getTransfer(transferId, userId):
     """get transfer in db by Entity id
 
     Returns:
@@ -56,7 +60,7 @@ def getTransfer(transferId):
         return False, 400
 
 
-def updateTransfer(transferId):
+def updateTransfer(transferId, userId):
     """update transfer in db with matching Entity id
 
     Returns:
@@ -65,7 +69,7 @@ def updateTransfer(transferId):
     try:
         if validateTransferBody(connexion.request.json) is True:
             transfer = datastoreHelper().updateEntity(
-                transferId, Transfer(**connexion.request.json)
+                transferId, Transfer(userId=userId, **connexion.request.json)
             )
             transfer.get_dict().pop("deleted", None)
             return transfer.get_dict(), 200
@@ -78,7 +82,7 @@ def updateTransfer(transferId):
     return None
 
 
-def deleteTransfer(transferId):
+def deleteTransfer(transferId, userId):
     try:
         transfer = datastoreHelper().getEntity(transferId)
         transfer.deleted = True
