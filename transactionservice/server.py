@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import render_template
 import connexion
 from flask_cors import CORS
 import argparse
@@ -7,13 +8,9 @@ app = Flask(__name__)
 
 
 def parseArgs():
-    parser = argparse.ArgumentParser(description="Python API Starter")
-    parser.add_argument(
-        "-p", default=5000, help="Specify port number", action="store"
-    )
-    parser.add_argument(
-        "-t", action="store_true", help="Launch API and run tests"
-    )
+    parser = argparse.ArgumentParser(description="Transaction Service API")
+    parser.add_argument("-p", default=5050, help="Specify port number", action="store")
+    parser.add_argument("-t", action="store_true", help="Launch API and run tests")
     return parser.parse_args()
 
 
@@ -41,3 +38,4 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=args.p, debug=True)
     else:
         app.run(host="0.0.0.0", port=args.p)
+

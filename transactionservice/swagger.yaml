@@ -1,19 +1,19 @@
 openapi: 3.0.1
 info:
-  title: Transfer service API
-  description: Transfer service API
+  title: Transaction service API
+  description: Transaction service API
   version: 1.0.0
 servers:
   - url: "/api"
 paths:
-  /transfer/{userId}:
+  /transaction/{userId}:
     get:
       tags:
-        - transfer
-      summary: returns all transfers
+        - transaction
+      summary: returns all transaction
       description: |
-        Return all the account transfers to other bank accounts (different from transactions, these are only account transfer ie. wire transfers)
-      operationId: transferHandler.getAllTransfers
+        Return all the transactions for a particular user
+      operationId: transactionHandler.getAllTransactions
       parameters:
         - name: userId
           in: path
@@ -25,21 +25,21 @@ paths:
           example: 214231
       responses:
         200:
-          description: array of transfer objs
+          description: array of transaction objs
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/transferObjArray"
+                $ref: "#/components/schemas/transactionObjArray"
         400:
           description: bad input parameter
           content: {}
     post:
       tags:
-        - transfer
-      summary: add a new transfer object
+        - transaction
+      summary: add a new transaction object
       description: |
-        Post to Cloud Datastore, with the request body as the new transfer in JSON
-      operationId: transferHandler.postTransfer
+        Post to Cloud Datastore, with the request body as the new transaction in JSON
+      operationId: transactionHandler.postTransaction
       parameters:
         - name: userId
           in: path
@@ -50,34 +50,34 @@ paths:
             format: int64
           example: 214231
       requestBody:
-        description: Transfer to add
+        description: transaction to add
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/newTransfer"
+              $ref: "#/components/schemas/newTransaction"
       responses:
         201:
-          description: transfer id
+          description: transaction id
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/transferIdObj"
+                $ref: "#/components/schemas/transactionIdObj"
         400:
           description: bad input parameter
           content: {}
-  /transfer/{userId}/{transferId}:
+  /transaction/{userId}/{transactionId}:
     get:
       tags:
-        - transfer
-      summary: Return the transfer info for transferId {id}
+        - transaction
+      summary: Return the transaction info for transactionId {id}
       description: |
-        Return the transfer info for transferId {id}
-      operationId: transferHandler.getTransfer
+        Return the transaction info for transactionId {id}
+      operationId: transactionHandler.getTransaction
       parameters:
-        - name: transferId
+        - name: transactionId
           in: path
-          description: ID of transfer to get
+          description: ID of transaction to get
           required: true
           schema:
             type: integer
@@ -92,65 +92,65 @@ paths:
           example: 214231
       responses:
         200:
-          description: transfer obj
+          description: transaction obj
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/transferObj"
+                $ref: "#/components/schemas/transactionObj"
         400:
           description: bad input parameter
           content: {}
     put:
       tags:
-        - transfer
-      summary: modify an existing transfer object
+        - transaction
+      summary: modify an existing transaction object
       description: |
-        In the request body as the updated profile in JSON, update the transfer with {id}
-      operationId: transferHandler.updateTransfer
+        In the request body as the updated profile in JSON, update the transaction with {id}
+      operationId: transactionHandler.updateTransaction
       parameters:
-        - name: transferId
+        - name: transactionId
           in: path
-          description: ID of transfer to update
+          description: ID of transaction to update
           required: true
           schema:
             type: integer
             format: int64
         - name: userId
           in: path
-          description: ID of the user
+          description: ID of user
           required: true
           schema:
             type: integer
             format: int64
           example: 214231
       requestBody:
-        description: Transfer to modify
+        description: Transaction to modify
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/newTransfer"
+              $ref: "#/components/schemas/newTransaction"
       responses:
         204:
-          description: new transfer object with updated data and same id
+          description: new transaction object with updated data and same id
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/transferObj"
+                $ref: "#/components/schemas/transactionObj"
         400:
           description: bad input parameter
           content: {}
     delete:
       tags:
-        - transfer
-      summary: delete an existing transfer object
+        - transaction
+      summary: delete an existing transaction object
       description: |
-        Delete the transfer with {id}
-      operationId: transferHandler.deleteTransfer
+        Delete the transaction with {id}
+      operationId: transactionHandler.deleteTransaction
       parameters:
-        - name: transferId
+        - name: transactionId
           in: path
-          description: ID of transfer to delete
+          description: ID of transaction to delete
           required: true
           schema:
             type: integer
@@ -165,49 +165,48 @@ paths:
           example: 214231
       responses:
         204:
-          description: successfully deleted transfer
+          description: successfully deleted transaction
         400:
           description: bad input parameter
           content: {}
 components:
   schemas:
-    newTransfer:
+    TransactionType:
+      type: string
+      enum:
+        - credit
+        - debit
+    newTransaction:
       type: object
       properties:
         amount:
           type: string
           example: "2000"
-        routingNumber:
+        transactionType:
           type: string
-          example: "309091348"
-        accountNumber:
-          type: string
-          example: "29483490"
-    transferIdObj:
+          $ref: "#/components/schemas/TransactionType"
+    transactionIdObj:
       type: object
       properties:
-        transferId:
+        transactionId:
           type: string
           example: "20931"
-    transferObj:
+    transactionObj:
       type: object
       properties:
-        transferId:
+        transactionId:
           type: string
           example: "20931"
-        amount:
-          type: string
-          example: "2000"
         userId:
           type: string
           example: "43243"
-        routingNumber:
+        amount:
           type: string
-          example: "309091348"
-        accountNumber:
+          example: "2000"
+        transactionType:
           type: string
-          example: "29483490"
-    transferObjArray:
+          $ref: "#/components/schemas/TransactionType"
+    transactionObjArray:
       type: array
       items:
-        $ref: "#/components/schemas/transferObj"
+        $ref: "#/components/schemas/transactionObj"

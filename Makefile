@@ -13,6 +13,11 @@ lint_test:
 test_transferservice:
 	docker run --rm -it  -e GOOGLE_APPLICATION_CREDENTIALS_JSON -e PROJECT_ID \
 	$$(docker build -q -f transferservice/Dockerfile-pytest transferservice/)
+.PHONY: test_transactionservice
+test_transactionservice:
+	docker run --rm -it  -e GOOGLE_APPLICATION_CREDENTIALS_JSON -e PROJECT_ID \
+	$$(docker build -q -f transactionservice/Dockerfile-pytest transactionservice/)
 .PHONY: all_test
 all_test:
 	make test_transferservice
+	make test_transactionservice

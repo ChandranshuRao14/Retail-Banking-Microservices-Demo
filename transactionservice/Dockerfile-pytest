@@ -1,0 +1,9 @@
+FROM python:3.8.0
+WORKDIR api
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
+ENV AM_I_IN_A_DOCKER_CONTAINER=true
+ENV GOOGLE_APPLICATION_CREDENTIALS_JSON=${GOOGLE_APPLICATION_CREDENTIALS_JSON}
+ENV PROJECT_ID=${PROJECT_ID}
+COPY . .
+CMD ["pytest","-v", "-p" ,"no:warnings"]

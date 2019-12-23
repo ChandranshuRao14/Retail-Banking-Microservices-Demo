@@ -24,12 +24,17 @@ build:
       context: ./transferservice/
       docker:
         dockerfile: Dockerfile-prod
+    - image: transactionservice
+      context: ./transactionservice/
+      docker:
+        dockerfile: Dockerfile-prod
 deploy:
   kubectl:
     manifests:
       - ./frontend/k8s/*
       - ./profileservice/k8s/*
       - ./transferservice/k8s/*
+      - ./transactionservice/k8s/*
 portForward:
   - resourceType: deployment
     resourceName: frontend
@@ -43,11 +48,15 @@ portForward:
     resourceName: transferservice
     port: 5000
     localPort: 5000
+  - resourceType: deployment
+    resourceName: transactionservice
+    port: 5050
+    localPort: 5050
 profiles:
-#for remote builds
-- name: gcb
-  build:
-    googleCloudBuild:
-      diskSizeGb: 10
-      machineType: N1_HIGHCPU_8
-      timeout: 1200s
+  #for remote builds
+  - name: gcb
+    build:
+      googleCloudBuild:
+        diskSizeGb: 10
+        machineType: N1_HIGHCPU_8
+        timeout: 1200s
