@@ -1,4 +1,4 @@
-import json, traceback
+import traceback
 import connexion
 from transfer import Transfer
 from datastore import datastoreHelper
@@ -116,4 +116,3 @@ def validateTransferBody(data):
                 + ",".join(allowedKeys)
             }
     return True
-

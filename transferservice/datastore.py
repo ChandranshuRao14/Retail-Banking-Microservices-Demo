@@ -1,4 +1,5 @@
-import os, json
+import os
+import json
 from transfer import Transfer
 from google.cloud import datastore
 from google.oauth2 import service_account
@@ -13,7 +14,9 @@ class datastoreHelper:
         kind="transfer",
     ):
         if os.getenv("GOOGLE_APPLICATION_CREDENTIALS_PATH"):
-            self._creds = service_account.Credentials.from_service_account_file(creds)
+            self._creds = service_account.Credentials.from_service_account_file(
+                creds
+            )
         elif os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON"):
             self._creds = service_account.Credentials.from_service_account_info(
                 json.loads(creds_json)
@@ -24,7 +27,9 @@ class datastoreHelper:
             raise Exception("No Project ID set")
         self._project = project
         self._kind = kind
-        self._client = datastore.Client(project=project, credentials=self._creds)
+        self._client = datastore.Client(
+            project=project, credentials=self._creds
+        )
 
     def putEntity(self, transfer):
         """put a new entity in datastore
@@ -49,7 +54,9 @@ class datastoreHelper:
         Returns:
             [Transfer] -- [Transfer with matching id]
         """
-        transfer = Transfer(**self._client.get(self._client.key(self._kind, id)))
+        transfer = Transfer(
+            **self._client.get(self._client.key(self._kind, id))
+        )
         transfer.transferId = id
         return transfer
 
@@ -57,7 +64,8 @@ class datastoreHelper:
         """get all entities matching a filter
 
         Arguments:
-            filter {[[array of filters]]} -- [filters for datastore of the form ["key","operator","val"]]
+            filter {[[array of filters]]} -- [filters for datastore
+                                            of the form ["key","operator","val"]]
 
         Returns:
             [list] -- [list of matching entities]

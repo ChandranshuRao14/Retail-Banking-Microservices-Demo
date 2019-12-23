@@ -1,5 +1,5 @@
 from openapi_spec_validator import validate_spec
-import json, requests
+import json
 
 
 VALID_TRANSFER = dict()
@@ -25,7 +25,9 @@ Validate OpenAPI Spec
 
 
 def test_validate_openapi_spec(client):
-    assert validate_spec(client.get("/test/api/openapi.json").get_json()) == None
+    assert (
+        validate_spec(client.get("/test/api/openapi.json").get_json()) is None
+    )
 
 
 """
@@ -91,7 +93,9 @@ def test_get_transfer(client):
     assert "transferId" in [*data]
     transferId = data["transferId"]
 
-    get_response = client.get("/test/api/transfer/{}/{}".format(EXAMPLE_USER_ID, transferId))
+    get_response = client.get(
+        "/test/api/transfer/{}/{}".format(EXAMPLE_USER_ID, transferId)
+    )
     data = get_response.get_json()
     assert "accountNumber" in [*data]
     assert "amount" in [*data]
@@ -178,7 +182,9 @@ def test_delete_transfer(client):
     data = post_response.get_json()
     assert "transferId" in [*data]
     transferId = data["transferId"]
-    delete_response = client.delete("/test/api/transfer/{}/{}".format(EXAMPLE_USER_ID, transferId))
+    delete_response = client.delete(
+        "/test/api/transfer/{}/{}".format(EXAMPLE_USER_ID, transferId)
+    )
     assert delete_response.status_code == 204
 
 
@@ -199,7 +205,9 @@ def test_all_transfer(client):
     data = get_response.get_json()
     for transfer in data:
         delete_response = client.delete(
-            "/test/api/transfer/{}/{}".format(transfer["userId"], transfer["transferId"])
+            "/test/api/transfer/{}/{}".format(
+                transfer["userId"], transfer["transferId"]
+            )
         )
         assert delete_response.status_code == 204
     headers = {"content-type": "application/json"}
@@ -213,4 +221,3 @@ def test_all_transfer(client):
     data = get_response.get_json()
     assert isinstance(data, list)
     assert len(data) == 1
-
