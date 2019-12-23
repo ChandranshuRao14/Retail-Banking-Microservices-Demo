@@ -34,6 +34,17 @@ steps:
         export PROJECT_ID=$PROJECT_ID && \
         docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS_JSON -e PROJECT_ID \
         $(docker build -q -f transferservice/Dockerfile-pytest transferservice/)
+  - id: "Transaction service tests"
+    waitFor: ["Get svc"]
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        export GOOGLE_APPLICATION_CREDENTIALS_JSON=$(< secrets.json) && \
+        export PROJECT_ID=$PROJECT_ID && \
+        docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS_JSON -e PROJECT_ID \
+        $(docker build -q -f transactionservice/Dockerfile-pytest transactionservice/)
 substitutions:
   _KEY_RING: cb-key-ring
   _KEY: cb-key
