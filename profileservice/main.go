@@ -5,21 +5,15 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-
-	//"io"
+	"fmt"
 	"log"
-	//"fmt"
 	"strings"
-	//"path"
 	"github.com/gorilla/mux"
-	//"github.com/gorilla/handlers"
 	"strconv"
 
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 
-	//"google.golang.org/appengine"
-	//"google.golang.org/appengine/datastore"
 	"cloud.google.com/go/datastore"
 )
 
@@ -38,22 +32,19 @@ var dsClient *datastore.Client
 
 func main() {
 	ctx := context.Background()
-
 	var err error
 	creds, err := google.CredentialsFromJSON(ctx, []byte(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")), datastore.ScopeDatastore)
 	if err != nil {
-		// TODO: handle error.
+		// fmt.Printf("Can't retrieve service account key: %v\n", err)
+		// return
 	}
-	// TODO: get project ID from gae context
 	dsClient, err = datastore.NewClient(ctx, os.Getenv("PROJECT_ID"), option.WithCredentials(creds))
-	//dsClient, err = datastore.NewClient(ctx, appengine.AppID(ctx))
-
 	if err != nil {
-		log.Fatal(err)
-	}
+		fmt.Printf("Can't retrieve project ID: %v\n", err)
+		return
 
+	}
 	registerHandlers()
-	//appengine.Main()
 }
 
 func registerHandlers() {
@@ -66,30 +57,36 @@ func registerHandlers() {
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
-// createHandler adds a user to the database.
+// CreateHandler adds a user to the database.
 func createHandler(w http.ResponseWriter, r *http.Request) {
-	//ctx := appengine.NewContext(r)
 	ctx := context.Background()
 	var user User
+	// Decode request body
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	// Insert the entity into Datastore
 	key := datastore.IncompleteKey("User", nil)
-	if _, err := dsClient.Put(ctx, key, &user); err != nil {
+	key, err = dsClient.Put(ctx, key, &user)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	user.UserID = key.ID
+	// Update the entity with UUID
+	if _, err = dsClient.Put(ctx, key, &user); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}	
+	w.Write([]byte(fmt.Sprintf("%+v\n", user)))
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
-	//ctx := appengine.NewContext(r)
 	ctx := context.Background()
 	user := make([]*User, 0)
 	q := datastore.NewQuery("User")
-	// have to use a slice to save the result? or have to use getall?
 	if _, err := dsClient.GetAll(ctx, q, &user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -99,89 +96,80 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func readHandler(w http.ResponseWriter, r *http.Request) {
-	//ctx := appengine.NewContext(r)
 	ctx := context.Background()
 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/"))
 	if err != nil {
-		// change error to invalid ID (should be an int)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	user := make([]*User, 0)
+	users := make([]*User, 0)
 	q := datastore.NewQuery("User").Filter("UserID =", id)
-	// have to use a slice to save the result? or have to use getall?
-	if _, err := dsClient.GetAll(ctx, q, &user); err != nil {
+	if _, err := dsClient.GetAll(ctx, q, &users); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	res, _ := json.Marshal(&user)
+	if len(users) == 0 {
+		http.Error(w, "User ID not found", http.StatusBadRequest)
+		return		
+	}
+	res, _ := json.Marshal(&users)
 	w.Write(res)
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
-	//ctx := appengine.NewContext(r)
 	ctx := context.Background()
 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/"))
 	if err != nil {
-		// todo: change error to invalid ID (should be an int)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	user := make([]*User, 0)
 	q := datastore.NewQuery("User").Filter("UserID =", id)
-	// have to use a slice to save the result? or have to use getall?
 	keys, err := dsClient.GetAll(ctx, q, &user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// todo: fix error message
+	if len(user) == 0 {
+		http.Error(w, "User ID not found", http.StatusBadRequest)
+		return		
+	}
 	if err := dsClient.DeleteMulti(ctx, keys); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	w.Write([]byte("Successfully deleted user " + fmt.Sprintf("%+v\n", user[0])))
 }
 
 // createHandler adds a user to the database.
 func updateHandler(w http.ResponseWriter, r *http.Request) {
-	//ctx := appengine.NewContext(r)
 	ctx := context.Background()
 	id, err := strconv.Atoi(strings.TrimPrefix(r.URL.Path, "/user/"))
 	if err != nil {
-		// todo: change error to invalid ID (should be an int)
-		http.Error(w, err.Error(), http.StatusPaymentRequired)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	users := make([]*User, 0)
 	q := datastore.NewQuery("User").Filter("UserID =", id)
-	// have to use a slice to save the result? or have to use getall?
 	keys, err := dsClient.GetAll(ctx, q, &users)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	if len(users) == 0 {
+		http.Error(w, "User ID not found", http.StatusBadRequest)
+		return		
+	}
 	var user User
 	err = json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	user.UserID = keys[0].ID
 	if _, err := dsClient.Put(ctx, keys[0], &user); err != nil {
-		http.Error(w, err.Error(), http.StatusPermanentRedirect)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	w.Write([]byte(fmt.Sprintf("%+v\n", user)))
 }
-
-// 	// Respond to App Engine and Compute Engine health checks.
-// 	// Indicate the server is healthy.
-// 	// r.Methods("GET").Path("/_ah/health").HandlerFunc(
-// 	// 	func(w http.ResponseWriter, r *http.Request) {
-// 	// 		w.Write([]byte("ok"))
-// 	// 	})
-
-// 	// Delegate all of the HTTP routing and serving to the gorilla/mux router.
-// 	// Log all requests using the standard Apache format.
-// 	// http.Handle("/", handlers.CombinedLoggingHandler(os.Stderr, r))
-// }
