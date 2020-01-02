@@ -1,0 +1,8 @@
+FROM python:3.8.0
+WORKDIR api
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
+ENV AM_I_IN_A_DOCKER_CONTAINER true
+ENV GUNICORN_PORT 5000
+COPY . .
+ENTRYPOINT ["sh", "-c","gunicorn -b 0.0.0.0:${GUNICORN_PORT} wsgi:app"]

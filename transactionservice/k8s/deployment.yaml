@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-app
+spec:
+  selector:
+    matchLabels:
+      app: transaction-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: transaction-app
+    spec:
+      containers:
+        - name: transaction-app-container
+          image: transactionservice
+          ports:
+            - name: http
+              containerPort: 5050
+          env:
+            - name: "PROJECT_ID"
+              valueFrom:
+                configMapKeyRef:
+                  name: env-vars
+                  key: env.project-id
+            - name: "GOOGLE_APPLICATION_CREDENTIALS_PATH"
+              value: "/var/goog/secrets/service-acc.json"
+          volumeMounts:
+            - name: "service-account"
+              mountPath: "/var/goog/secrets"
+              readOnly: true
+      volumes:
+        - name: "service-account"
+          secret:
+            secretName: svc-key

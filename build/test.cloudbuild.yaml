@@ -1,0 +1,50 @@
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+steps:
+  - id: "Get svc"
+    waitFor: ["-"]
+    name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        gcloud kms decrypt --ciphertext-file=build/secrets.json.enc --plaintext-file=secrets.json \
+        --location=global --keyring=${_KEY_RING} --key=${_KEY}
+
+  - id: "Transfer service tests"
+    waitFor: ["Get svc"]
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        export GOOGLE_APPLICATION_CREDENTIALS_JSON=$(< secrets.json) && \
+        export PROJECT_ID=$PROJECT_ID && \
+        docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS_JSON -e PROJECT_ID \
+        $(docker build -q -f transferservice/Dockerfile-pytest transferservice/)
+  - id: "Transaction service tests"
+    waitFor: ["Get svc"]
+    name: "gcr.io/cloud-builders/docker"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        export GOOGLE_APPLICATION_CREDENTIALS_JSON=$(< secrets.json) && \
+        export PROJECT_ID=$PROJECT_ID && \
+        docker run --rm -e GOOGLE_APPLICATION_CREDENTIALS_JSON -e PROJECT_ID \
+        $(docker build -q -f transactionservice/Dockerfile-pytest transactionservice/)
+substitutions:
+  _KEY_RING: cb-key-ring
+  _KEY: cb-key

@@ -1,0 +1,7 @@
+runtime: custom
+env: flex
+
+# handlers:
+# - url: /user/.*
+#   login: admin
+#   script: autoy
