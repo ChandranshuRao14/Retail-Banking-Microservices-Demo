@@ -1,10 +1,10 @@
 import React from 'react';
-import {Container, Navbar, NavbarBrand } from 'reactstrap';
+import { Container, Navbar, NavbarBrand } from 'reactstrap';
 
 class TopBar extends React.Component {
   constructor(props: Readonly<{}>) {
     super(props);
-  }
+  } 
 
   render() {
     return (

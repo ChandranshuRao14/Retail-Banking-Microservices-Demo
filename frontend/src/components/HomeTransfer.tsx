@@ -1,6 +1,6 @@
 import React from "react";
-import {Button, Modal, ButtonToolbar} from 'react-bootstrap';
-import { Fab} from '@material-ui/core';
+import { Button, Modal } from 'react-bootstrap';
+import { Fab } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
