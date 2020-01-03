@@ -109,10 +109,10 @@ func readHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(users) == 0 {
-		http.Error(w, "User ID not found", http.StatusBadRequest)
+		http.Error(w, "{'error': 'User ID not found'}", http.StatusBadRequest)
 		return		
 	}
-	res, _ := json.Marshal(&users)
+	res, _ := json.Marshal(&users[0])
 	w.Write(res)
 }
 
@@ -131,7 +131,7 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(user) == 0 {
-		http.Error(w, "User ID not found", http.StatusBadRequest)
+		http.Error(w, "{'error': 'User ID not found'}", http.StatusBadRequest)
 		return		
 	}
 	if err := dsClient.DeleteMulti(ctx, keys); err != nil {
@@ -157,7 +157,7 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(users) == 0 {
-		http.Error(w, "User ID not found", http.StatusBadRequest)
+		http.Error(w, "{'error': 'User ID not found'}", http.StatusBadRequest)
 		return		
 	}
 	var user User
