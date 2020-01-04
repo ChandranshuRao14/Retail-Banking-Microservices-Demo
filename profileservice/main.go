@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
-	"fmt"
-	"log"
-	"strings"
-	"github.com/gorilla/mux"
 	"strconv"
+	"strings"
+
+	"github.com/gorilla/mux"
 
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
@@ -33,10 +35,26 @@ var dsClient *datastore.Client
 func main() {
 	ctx := context.Background()
 	var err error
-	creds, err := google.CredentialsFromJSON(ctx, []byte(os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")), datastore.ScopeDatastore)
-	if err != nil {
-		// fmt.Printf("Can't retrieve service account key: %v\n", err)
-		// return
+	var creds *google.Credentials
+	if value, exists := os.LookupEnv("GOOGLE_APPLICATION_CREDENTIALS_PATH"); exists {
+		data, err := ioutil.ReadFile(value)
+		if err != nil {
+			fmt.Printf("Can't read json file: %v\n", err)
+			return
+		}
+		creds, err = google.CredentialsFromJSON(ctx, []byte(data), datastore.ScopeDatastore)
+		if err != nil {
+			fmt.Printf("Can't create service account credentials from json file: %v\n", err)
+			return
+		}
+	} else if value, exists := os.LookupEnv("GOOGLE_APPLICATION_CREDENTIALS_JSON"); exists {
+		creds, err = google.CredentialsFromJSON(ctx, []byte(value), datastore.ScopeDatastore)
+		if err != nil {
+			fmt.Printf("Can't create service account credentials from env var: %v\n", err)
+			return
+		}
+	} else {
+		fmt.Printf("Can't retrieve service account: %v\n", err)
 	}
 	dsClient, err = datastore.NewClient(ctx, os.Getenv("PROJECT_ID"), option.WithCredentials(creds))
 	if err != nil {
@@ -79,7 +97,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	if _, err = dsClient.Put(ctx, key, &user); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}	
+	}
 	w.Write([]byte(fmt.Sprintf("%+v\n", user)))
 }
 
@@ -110,7 +128,7 @@ func readHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(users) == 0 {
 		http.Error(w, "{'error': 'User ID not found'}", http.StatusBadRequest)
-		return		
+		return
 	}
 	res, _ := json.Marshal(&users[0])
 	w.Write(res)
@@ -132,7 +150,7 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(user) == 0 {
 		http.Error(w, "{'error': 'User ID not found'}", http.StatusBadRequest)
-		return		
+		return
 	}
 	if err := dsClient.DeleteMulti(ctx, keys); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -158,7 +176,7 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(users) == 0 {
 		http.Error(w, "{'error': 'User ID not found'}", http.StatusBadRequest)
-		return		
+		return
 	}
 	var user User
 	err = json.NewDecoder(r.Body).Decode(&user)
