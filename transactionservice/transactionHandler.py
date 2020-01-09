@@ -1,10 +1,10 @@
-import json, traceback
+import json, traceback, os
 import connexion
-import requests
 from transaction import Transaction
 from datastore import datastoreHelper
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from requestsUtil import make_request_session
+
+dsHelper = datastoreHelper()
 
 
 def postTransaction(userId):
@@ -34,7 +34,7 @@ def postTransaction(userId):
             )
         userData["AccountBalance"] -= int(connexion.request.json["amount"])
         updateUserData(userData)
-        transactionId = datastoreHelper().putEntity(
+        transactionId = dsHelper.putEntity(
             Transaction(userId=userId, **connexion.request.json)
         )
         return {"transactionId": transactionId}, 201
@@ -51,7 +51,10 @@ def getAllTransactions(userId):
         [Response] -- [array transactions in db,response code]
     """
     try:
-        transactions = datastoreHelper().getEntityByFilter(
+        userData = getUserData(userId)
+        if not userData:
+            return {"error": "user not found"}, 400
+        transactions = dsHelper.getEntityByFilter(
             [["deleted", "=", False], ["userId", "=", userId]]
         )
         for transaction in transactions:
@@ -71,7 +74,10 @@ def getTransaction(transactionId, userId):
         [Response] -- [transaction with id,response code]
     """
     try:
-        transaction = datastoreHelper().getEntity(transactionId)
+        userData = getUserData(userId)
+        if not userData:
+            return {"error": "user not found"}, 400
+        transaction = dsHelper.getEntity(transactionId)
         transaction.get_dict().pop("deleted", None)
         return transaction.get_dict(), 200
     except Exception as e:
@@ -88,7 +94,10 @@ def updateTransaction(transactionId, userId):
     """
     try:
         if validateTransactionBody(connexion.request.json) is True:
-            transaction = datastoreHelper().updateEntity(
+            userData = getUserData(userId)
+            if not userData:
+                return {"error": "user not found"}, 400
+            transaction = dsHelper.updateEntity(
                 transactionId,
                 Transaction(userId=userId, **connexion.request.json),
             )
@@ -105,9 +114,12 @@ def updateTransaction(transactionId, userId):
 
 def deleteTransaction(transactionId, userId):
     try:
-        transaction = datastoreHelper().getEntity(transactionId)
+        userData = getUserData(userId)
+        if not userData:
+            return {"error": "user not found"}, 400
+        transaction = dsHelper.getEntity(transactionId)
         transaction.deleted = True
-        datastoreHelper().updateEntity(transactionId, transaction)
+        dsHelper.updateEntity(transactionId, transaction)
         return True, 204
     except Exception as e:
         print(e)
@@ -140,38 +152,23 @@ def validateTransactionBody(data):
     return True
 
 
-def getUserData(userId, profileServiceURL="http://localhost:8080"):
-    session = requests.Session()
-    retries = Retry(
-        total=5,
-        backoff_factor=1,
-        status_forcelist=tuple(
-            x for x in requests.status_codes._codes if x not in [200, 400]
-        ),
-    )
-    adapter = HTTPAdapter(max_retries=retries)
-    session.mount("http://", adapter)
-    session.mount("https://", adapter)
+def getUserData(
+    userId,
+    profileServiceURL=os.getenv("PROFILE_SVC_URL", "http://localhost:8080"),
+):
+    session = make_request_session([200, 400])
     response = session.get(profileServiceURL + "/user/{}".format(userId))
     if response.status_code != 200:
         return False
-    return response.json()[0]
+    return response.json()
 
 
-def updateUserData(userData, profileServiceURL="http://localhost:8080"):
-    session = requests.Session()
-    retries = Retry(
-        total=5,
-        backoff_factor=1,
-        status_forcelist=tuple(
-            x for x in requests.status_codes._codes if x not in [200, 400]
-        ),
-    )
-    adapter = HTTPAdapter(max_retries=retries)
-    session.mount("http://", adapter)
-    session.mount("https://", adapter)
+def updateUserData(
+    userData,
+    profileServiceURL=os.getenv("PROFILE_SVC_URL", "http://localhost:8080"),
+):
+    session = make_request_session([200, 400])
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
-    print(profileServiceURL + "/user/{}".format(userData["UserID"]))
     response = session.put(
         profileServiceURL + "/user/{}".format(userData["UserID"]),
         data=json.dumps(userData),
@@ -179,5 +176,4 @@ def updateUserData(userData, profileServiceURL="http://localhost:8080"):
     )
     if response.status_code != 200:
         return False
-
     return True

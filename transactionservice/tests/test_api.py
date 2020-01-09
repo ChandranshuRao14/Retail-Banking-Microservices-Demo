@@ -84,186 +84,186 @@ def test_post_transaction_no_balance_debit(client):
     assert "error" in [*data]
 
 
-# def test_post_transaction_fail_required_keys(client):
-#     headers = {"content-type": "application/json"}
-#     post_response = client.post(
-#         "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
-#         data=json.dumps(INVALID_TRANSACTION_LESS_KEYS),
-#         headers=headers,
-#     )
-#     assert post_response.status_code == 400
-#     data = post_response.get_json()
-#     assert "error" in [*data]
+def test_post_transaction_fail_required_keys(client):
+    headers = {"content-type": "application/json"}
+    post_response = client.post(
+        "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
+        data=json.dumps(INVALID_TRANSACTION_LESS_KEYS),
+        headers=headers,
+    )
+    assert post_response.status_code == 400
+    data = post_response.get_json()
+    assert "error" in [*data]
 
 
-# def test_post_transaction_fail_extra_keys(client):
-#     headers = {"content-type": "application/json"}
-#     post_response = client.post(
-#         "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
-#         data=json.dumps(INVALID_TRANSACTION_WRONG_KEYS),
-#         headers=headers,
-#     )
-#     assert post_response.status_code == 400
-#     data = post_response.get_json()
-#     assert "error" in [*data]
+def test_post_transaction_fail_extra_keys(client):
+    headers = {"content-type": "application/json"}
+    post_response = client.post(
+        "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
+        data=json.dumps(INVALID_TRANSACTION_WRONG_KEYS),
+        headers=headers,
+    )
+    assert post_response.status_code == 400
+    data = post_response.get_json()
+    assert "error" in [*data]
 
 
-# def test_post_transaction_fail_wrong_transaction_type(client):
-#     headers = {"content-type": "application/json"}
-#     post_response = client.post(
-#         "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
-#         data=json.dumps(INVALID_TRANSACTION_WRONG_TRANSACTIONTYPE),
-#         headers=headers,
-#     )
-#     assert post_response.status_code == 400
+def test_post_transaction_fail_wrong_transaction_type(client):
+    headers = {"content-type": "application/json"}
+    post_response = client.post(
+        "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
+        data=json.dumps(INVALID_TRANSACTION_WRONG_TRANSACTIONTYPE),
+        headers=headers,
+    )
+    assert post_response.status_code == 400
 
 
-# """
-# **************************************
-# Validate GET Transfer
-# **************************************
-# """
+"""
+**************************************
+Validate GET Transfer
+**************************************
+"""
 
 
-# def test_get_transaction(client):
-#     headers = {"content-type": "application/json"}
-#     post_response = client.post(
-#         "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
-#         data=json.dumps(VALID_TRANSACTION),
-#         headers=headers,
-#     )
-#     assert post_response.status_code == 201
-#     data = post_response.get_json()
-#     assert "transactionId" in [*data]
-#     transactionId = data["transactionId"]
+def test_get_transaction(client):
+    headers = {"content-type": "application/json"}
+    post_response = client.post(
+        "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
+        data=json.dumps(VALID_TRANSACTION),
+        headers=headers,
+    )
+    assert post_response.status_code == 201
+    data = post_response.get_json()
+    assert "transactionId" in [*data]
+    transactionId = data["transactionId"]
 
-#     get_response = client.get(
-#         "/test/api/transaction/{}/{}".format(EXAMPLE_USER_ID, transactionId)
-#     )
-#     data = get_response.get_json()
-#     assert "transactionType" in [*data]
-#     assert "amount" in [*data]
-
-
-# def test_get_transaction_fail(client):
-#     get_response = client.get("/test/api/transaction/1/1")
-#     assert get_response.status_code == 400
+    get_response = client.get(
+        "/test/api/transaction/{}/{}".format(EXAMPLE_USER_ID, transactionId)
+    )
+    data = get_response.get_json()
+    assert "transactionType" in [*data]
+    assert "amount" in [*data]
 
 
-# """
-# **************************************
-# Validate Update Transfer
-# **************************************
-# """
+def test_get_transaction_fail(client):
+    get_response = client.get("/test/api/transaction/1/1")
+    assert get_response.status_code == 400
 
 
-# def test_update_transaction(client):
-#     headers = {"content-type": "application/json"}
-#     post_response = client.post(
-#         "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
-#         data=json.dumps(VALID_TRANSACTION),
-#         headers=headers,
-#     )
-#     assert post_response.status_code == 201
-#     data = post_response.get_json()
-#     assert "transactionId" in [*data]
-#     transactionId = data["transactionId"]
-#     transaction = dict()
-#     transaction["transactionType"] = "debit"
-#     transaction["amount"] = "400"
-#     put_response = client.put(
-#         "/test/api/transaction/{}/{}".format(EXAMPLE_USER_ID, transactionId),
-#         data=json.dumps(transaction),
-#         headers=headers,
-#     )
-#     assert put_response.status_code == 200
-#     data = put_response.get_json()
-#     assert data["transactionType"] == transaction["transactionType"]
-#     assert data["amount"] == transaction["amount"]
-#     assert data["transactionId"] == transactionId
+"""
+**************************************
+Validate Update Transfer
+**************************************
+"""
 
 
-# def test_update_transaction_fail(client):
-#     headers = {"content-type": "application/json"}
-#     post_response = client.post(
-#         "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
-#         data=json.dumps(VALID_TRANSACTION),
-#         headers=headers,
-#     )
-#     assert post_response.status_code == 201
-#     data = post_response.get_json()
-#     assert "transactionId" in [*data]
-#     transactionId = data["transactionId"]
-#     put_response = client.put(
-#         "/test/api/transaction/{}/{}".format(EXAMPLE_USER_ID, transactionId),
-#         data=json.dumps(INVALID_TRANSACTION_WRONG_KEYS),
-#         headers=headers,
-#     )
-#     assert put_response.status_code == 400
-#     data = put_response.get_json()
-#     assert "error" in [*data]
+def test_update_transaction(client):
+    headers = {"content-type": "application/json"}
+    post_response = client.post(
+        "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
+        data=json.dumps(VALID_TRANSACTION),
+        headers=headers,
+    )
+    assert post_response.status_code == 201
+    data = post_response.get_json()
+    assert "transactionId" in [*data]
+    transactionId = data["transactionId"]
+    transaction = dict()
+    transaction["transactionType"] = "debit"
+    transaction["amount"] = "400"
+    put_response = client.put(
+        "/test/api/transaction/{}/{}".format(EXAMPLE_USER_ID, transactionId),
+        data=json.dumps(transaction),
+        headers=headers,
+    )
+    assert put_response.status_code == 200
+    data = put_response.get_json()
+    assert data["transactionType"] == transaction["transactionType"]
+    assert data["amount"] == transaction["amount"]
+    assert data["transactionId"] == transactionId
 
 
-# """
-# **************************************
-# Validate Delete Transfer
-# **************************************
-# """
+def test_update_transaction_fail(client):
+    headers = {"content-type": "application/json"}
+    post_response = client.post(
+        "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
+        data=json.dumps(VALID_TRANSACTION),
+        headers=headers,
+    )
+    assert post_response.status_code == 201
+    data = post_response.get_json()
+    assert "transactionId" in [*data]
+    transactionId = data["transactionId"]
+    put_response = client.put(
+        "/test/api/transaction/{}/{}".format(EXAMPLE_USER_ID, transactionId),
+        data=json.dumps(INVALID_TRANSACTION_WRONG_KEYS),
+        headers=headers,
+    )
+    assert put_response.status_code == 400
+    data = put_response.get_json()
+    assert "error" in [*data]
 
 
-# def test_delete_transaction(client):
-#     headers = {"content-type": "application/json"}
-#     post_response = client.post(
-#         "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
-#         data=json.dumps(VALID_TRANSACTION),
-#         headers=headers,
-#     )
-#     assert post_response.status_code == 201
-#     data = post_response.get_json()
-#     assert "transactionId" in [*data]
-#     transactionId = data["transactionId"]
-
-#     delete_response = client.delete(
-#         "/test/api/transaction/{}/{}".format(EXAMPLE_USER_ID, transactionId)
-#     )
-#     assert delete_response.status_code == 204
+"""
+**************************************
+Validate Delete Transfer
+**************************************
+"""
 
 
-# def test_delete_transaction_fail(client):
-#     delete_response = client.delete("/test/api/transaction/1/1")
-#     assert delete_response.status_code == 400
+def test_delete_transaction(client):
+    headers = {"content-type": "application/json"}
+    post_response = client.post(
+        "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
+        data=json.dumps(VALID_TRANSACTION),
+        headers=headers,
+    )
+    assert post_response.status_code == 201
+    data = post_response.get_json()
+    assert "transactionId" in [*data]
+    transactionId = data["transactionId"]
+
+    delete_response = client.delete(
+        "/test/api/transaction/{}/{}".format(EXAMPLE_USER_ID, transactionId)
+    )
+    assert delete_response.status_code == 204
 
 
-# """
-# **************************************
-# Validate All Transfers
-# **************************************
-# """
+def test_delete_transaction_fail(client):
+    delete_response = client.delete("/test/api/transaction/1/1")
+    assert delete_response.status_code == 400
 
 
-# def test_all_transaction(client):
-#     get_response = client.get(
-#         "/test/api/transaction/{}".format(EXAMPLE_USER_ID)
-#     )
-#     data = get_response.get_json()
-#     for transaction in data:
-#         delete_response = client.delete(
-#             "/test/api/transaction/{}/{}".format(
-#                 transaction["userId"], transaction["transactionId"]
-#             )
-#         )
-#         assert delete_response.status_code == 204
-#     headers = {"content-type": "application/json"}
-#     post_response = client.post(
-#         "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
-#         data=json.dumps(VALID_TRANSACTION),
-#         headers=headers,
-#     )
-#     assert post_response.status_code == 201
-#     get_response = client.get(
-#         "/test/api/transaction/{}".format(EXAMPLE_USER_ID)
-#     )
-#     data = get_response.get_json()
-#     assert isinstance(data, list)
-#     assert len(data) == 1
+"""
+**************************************
+Validate All Transfers
+**************************************
+"""
+
+
+def test_all_transaction(client):
+    get_response = client.get(
+        "/test/api/transaction/{}".format(EXAMPLE_USER_ID)
+    )
+    data = get_response.get_json()
+    for transaction in data:
+        delete_response = client.delete(
+            "/test/api/transaction/{}/{}".format(
+                transaction["userId"], transaction["transactionId"]
+            )
+        )
+        assert delete_response.status_code == 204
+    headers = {"content-type": "application/json"}
+    post_response = client.post(
+        "/test/api/transaction/{}".format(EXAMPLE_USER_ID),
+        data=json.dumps(VALID_TRANSACTION),
+        headers=headers,
+    )
+    assert post_response.status_code == 201
+    get_response = client.get(
+        "/test/api/transaction/{}".format(EXAMPLE_USER_ID)
+    )
+    data = get_response.get_json()
+    assert isinstance(data, list)
+    assert len(data) == 1
 

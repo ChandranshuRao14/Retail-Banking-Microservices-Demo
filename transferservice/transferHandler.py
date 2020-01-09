@@ -1,9 +1,31 @@
-import traceback
+import traceback, json, os
 import connexion
 from transfer import Transfer
 from datastore import datastoreHelper
+from requestsUtil import make_request_session
+from decorator import decorator
+from cachetools import cached, TTLCache
 
+dsHelper = datastoreHelper()
+cache = TTLCache(maxsize=100, ttl=60)
 
+@decorator
+def checkUser(
+    func,
+    profileServiceURL=os.getenv("PROFILE_SVC_URL", "http://localhost:8080"),
+    *args,
+    **kwargs
+):
+    session = session = make_request_session([200, 400])
+    @cached(cache)
+    def get_profile_wrapper(userID):
+        return session.get(profileServiceURL + "/user/{}".format(userID))
+    response=get_profile_wrapper(args[0])
+    if response.status_code != 200:
+        return {"error": "user not found"}, 400
+    return func(*args, **kwargs)
+
+@checkUser
 def postTransfer(userId):
     """add a new transfer to db
 
@@ -12,18 +34,20 @@ def postTransfer(userId):
     """
     try:
         if validateTransferBody(connexion.request.json) is True:
-            transferId = datastoreHelper().putEntity(
+            if (transactionCheck:= makeTransaction(userId, connexion.request.json["amount"])) is not True:
+                print(transactionCheck)
+                return {"error": "error creating transaction: {}".format(transactionCheck["error"])}, 400
+            transferId = dsHelper.putEntity(
                 Transfer(userId=userId, **connexion.request.json)
             )
             return {"transferId": transferId}, 201
-        else:
-            return validateTransferBody(connexion.request.json), 400
+        return validateTransferBody(connexion.request.json), 400
     except Exception as e:
         print(e)
         traceback.print_tb(e.__traceback__)
         return False, 400
 
-
+@checkUser
 def getAllTransfers(userId):
     """get all transfers in db
 
@@ -31,7 +55,7 @@ def getAllTransfers(userId):
         [Response] -- [array transfers in db,response code]
     """
     try:
-        transfers = datastoreHelper().getEntityByFilter(
+        transfers = dsHelper.getEntityByFilter(
             [["deleted", "=", False], ["userId", "=", userId]]
         )
         for transfer in transfers:
@@ -43,24 +67,26 @@ def getAllTransfers(userId):
         return False, 400
     return None
 
-
-def getTransfer(transferId, userId):
+@checkUser
+def getTransfer(userId, transferId):
     """get transfer in db by Entity id
 
     Returns:
         [Response] -- [transfer with id,response code]
     """
     try:
-        transfer = datastoreHelper().getEntity(transferId)
-        transfer.get_dict().pop("deleted", None)
-        return transfer.get_dict(), 200
+        transfer = dsHelper.getEntity(transferId)
+        if transfer:
+            transfer.get_dict().pop("deleted", None)
+            return transfer.get_dict(), 200
+        return {"error": "transfer {} not found".format(transferId)}, 400
     except Exception as e:
         print(e)
         traceback.print_tb(e.__traceback__)
         return False, 400
 
-
-def updateTransfer(transferId, userId):
+@checkUser
+def updateTransfer(userId, transferId):
     """update transfer in db with matching Entity id
 
     Returns:
@@ -68,25 +94,24 @@ def updateTransfer(transferId, userId):
     """
     try:
         if validateTransferBody(connexion.request.json) is True:
-            transfer = datastoreHelper().updateEntity(
+            transfer = dsHelper.updateEntity(
                 transferId, Transfer(userId=userId, **connexion.request.json)
             )
             transfer.get_dict().pop("deleted", None)
             return transfer.get_dict(), 200
-        else:
-            return validateTransferBody(connexion.request.json), 400
+        return validateTransferBody(connexion.request.json), 400
     except Exception as e:
         print(e)
         traceback.print_tb(e.__traceback__)
         return False, 400
     return None
 
-
-def deleteTransfer(transferId, userId):
+@checkUser
+def deleteTransfer(userId, transferId):
     try:
-        transfer = datastoreHelper().getEntity(transferId)
+        transfer = dsHelper.getEntity(transferId)
         transfer.deleted = True
-        datastoreHelper().updateEntity(transferId, transfer)
+        dsHelper.updateEntity(transferId, transfer)
         return True, 204
     except Exception as e:
         print(e)
@@ -115,4 +140,24 @@ def validateTransferBody(data):
                 "error": "only the following keys are allowed in transfer body:"
                 + ",".join(allowedKeys)
             }
+    return True
+
+
+def makeTransaction(
+    userId,
+    amount,
+    transactionType="debit",
+    transactionServiceURL=os.getenv(
+        "TRANSACTION_SVC_URL", "http://localhost:5050"
+    ),
+):
+    session = make_request_session([201, 400])
+    headers = {"Content-type": "application/json", "Accept": "text/plain"}
+    response = session.post(
+        transactionServiceURL + "/api/transaction/{}".format(userId),
+        data=json.dumps({"amount": amount, "transactionType": transactionType}),
+        headers=headers,
+    )
+    if response.status_code != 201:
+        return response.json()
     return True

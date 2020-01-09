@@ -54,11 +54,11 @@ class datastoreHelper:
         Returns:
             [Transfer] -- [Transfer with matching id]
         """
-        transfer = Transfer(
-            **self._client.get(self._client.key(self._kind, id))
-        )
-        transfer.transferId = id
-        return transfer
+        if (transferData:=self._client.get(self._client.key(self._kind, id))) is not None:
+            transfer = Transfer(**transferData)
+            transfer.transferId = id
+            return transfer
+        return False
 
     def getEntityByFilter(self, filters):
         """get all entities matching a filter

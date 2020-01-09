@@ -12,45 +12,27 @@ def client():
     with requests_mock.mock(real_http=True) as m:
         m.get(
             "http://localhost:8080/user/{}".format(EXAMPLE_USER_ID),
-            json=[
-                {
-                    "UserID": EXAMPLE_USER_ID,
-                    "Username": "test",
-                    "Address": "",
-                    "Email": "",
-                    "Password": "",
-                    "PhoneNumber": 0,
-                    "AccountBalance": 2001,
-                }
-            ],
+            json={
+                "UserID": EXAMPLE_USER_ID,
+                "Username": "test",
+                "Address": "",
+                "Email": "",
+                "Password": "",
+                "PhoneNumber": 0,
+                "AccountBalance": 2001,
+            },
         )
         m.get(
             "http://localhost:8080/user/{}".format(EXAMPLE_USER_ID_NO_BALANCE),
-            json=[
-                {
-                    "UserID": EXAMPLE_USER_ID_NO_BALANCE,
-                    "Username": "test",
-                    "Address": "",
-                    "Email": "",
-                    "Password": "",
-                    "PhoneNumber": 0,
-                    "AccountBalance": 0,
-                }
-            ],
-        )
-        m.put(
-            "http://localhost:8080/user/{}".format(EXAMPLE_USER_ID),
-            json=[
-                {
-                    "UserID": EXAMPLE_USER_ID,
-                    "Username": "test",
-                    "Address": "",
-                    "Email": "",
-                    "Password": "",
-                    "PhoneNumber": 0,
-                    "AccountBalance": 2001,
-                }
-            ],
+            json={
+                "UserID": EXAMPLE_USER_ID_NO_BALANCE,
+                "Username": "test",
+                "Address": "",
+                "Email": "",
+                "Password": "",
+                "PhoneNumber": 0,
+                "AccountBalance": 0,
+            },
         )
         args = mock.Mock()
         args.t = True
