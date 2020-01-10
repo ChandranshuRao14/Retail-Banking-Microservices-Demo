@@ -156,24 +156,34 @@ def getUserData(
     userId,
     profileServiceURL=os.getenv("PROFILE_SVC_URL", "http://localhost:8080"),
 ):
-    session = make_request_session([200, 400])
-    response = session.get(profileServiceURL + "/user/{}".format(userId))
-    if response.status_code != 200:
-        return False
-    return response.json()
+    try:
+        session = make_request_session([200, 400])
+        response = session.get(profileServiceURL + "/user/{}".format(userId))
+        if response.status_code != 200:
+            return False
+        return response.json()
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return {"error": "unable to retrieve user"}, 400
 
 
 def updateUserData(
     userData,
     profileServiceURL=os.getenv("PROFILE_SVC_URL", "http://localhost:8080"),
 ):
-    session = make_request_session([200, 400])
-    headers = {"Content-type": "application/json", "Accept": "text/plain"}
-    response = session.put(
-        profileServiceURL + "/user/{}".format(userData["UserID"]),
-        data=json.dumps(userData),
-        headers=headers,
-    )
-    if response.status_code != 200:
-        return False
-    return True
+    try:
+        session = make_request_session([200, 400])
+        headers = {"Content-type": "application/json", "Accept": "text/plain"}
+        response = session.put(
+            profileServiceURL + "/user/{}".format(userData["UserID"]),
+            data=json.dumps(userData),
+            headers=headers,
+        )
+        if response.status_code != 200:
+            return False
+        return True
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return {"error": "unable to update user data"}, 400

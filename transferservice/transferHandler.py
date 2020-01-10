@@ -17,13 +17,18 @@ def checkUser(
     **kwargs
 ):
     session = session = make_request_session([200, 400])
-    @cached(cache)
-    def get_profile_wrapper(userID):
-        return session.get(profileServiceURL + "/user/{}".format(userID))
-    response=get_profile_wrapper(args[0])
-    if response.status_code != 200:
-        return {"error": "user not found"}, 400
-    return func(*args, **kwargs)
+    try:
+        @cached(cache)
+        def get_profile_wrapper(userID):
+            return session.get(profileServiceURL + "/user/{}".format(userID))
+        response=get_profile_wrapper(args[0])
+        if response.status_code != 200:
+            return {"error": "user not found"}, 400
+        return func(*args, **kwargs)
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return {"error": "unable to retrieve user"}, 400
 
 @checkUser
 def postTransfer(userId):

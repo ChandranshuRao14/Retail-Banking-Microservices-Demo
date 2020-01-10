@@ -15,6 +15,13 @@ spec:
       containers:
         - name: transfer-app-container
           image: transferservice
+          resources:
+            limits:
+              cpu: "400m"
+              memory: 512Mi
+            requests:
+              cpu: "200m"
+              memory: 256Mi
           ports:
             - name: http
               containerPort: 5000
