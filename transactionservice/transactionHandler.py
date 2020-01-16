@@ -1,4 +1,6 @@
-import json, traceback, os
+import json
+import traceback
+import os
 import connexion
 from transaction import Transaction
 from datastore import datastoreHelper
@@ -28,7 +30,7 @@ def postTransaction(userId):
         ):
             return (
                 {
-                    "error": "user does not have enough account balance for this transaction"
+                    "error": "user does not have enough account balance for this transaction"  # noqa: E501
                 },
                 400,
             )

@@ -20,7 +20,7 @@ def client():
                 EXAMPLE_USER_ID_NO_BALANCE
             ),
             json={
-                "error": "user does not have enough account balance for this transaction"
+                "error": "user does not have enough balance for this transaction"
             },
             status_code=400,
         )

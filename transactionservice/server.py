@@ -1,5 +1,4 @@
 from flask import Flask
-from flask import render_template
 import connexion
 from flask_cors import CORS
 import argparse
@@ -42,4 +41,3 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=args.p, debug=True)
     else:
         app.run(host="0.0.0.0", port=args.p)
-

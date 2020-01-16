@@ -1,5 +1,5 @@
 from openapi_spec_validator import validate_spec
-import json, requests
+import json
 
 VALID_TRANSACTION = dict()
 VALID_TRANSACTION["amount"] = "100"
@@ -34,7 +34,7 @@ Validate OpenAPI Spec
 
 def test_validate_openapi_spec(client):
     assert (
-        validate_spec(client.get("/test/api/openapi.json").get_json()) == None
+        validate_spec(client.get("/test/api/openapi.json").get_json()) is None
     )
 
 
@@ -266,4 +266,3 @@ def test_all_transaction(client):
     data = get_response.get_json()
     assert isinstance(data, list)
     assert len(data) == 1
-

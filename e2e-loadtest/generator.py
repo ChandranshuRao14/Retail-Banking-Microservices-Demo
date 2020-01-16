@@ -44,4 +44,3 @@ class UserGenerator:
         if len(self.transfers_from_api) > 0:
             return choice(self.transfers_from_api)
         return False
-

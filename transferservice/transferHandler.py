@@ -1,4 +1,6 @@
-import traceback, json, os
+import traceback
+import json
+import os
 import connexion
 from transfer import Transfer
 from datastore import datastoreHelper
@@ -9,19 +11,22 @@ from cachetools import cached, TTLCache
 dsHelper = datastoreHelper()
 cache = TTLCache(maxsize=100, ttl=60)
 
+
 @decorator
 def checkUser(
     func,
     profileServiceURL=os.getenv("PROFILE_SVC_URL", "http://localhost:8080"),
     *args,
-    **kwargs
+    **kwargs,
 ):
     session = session = make_request_session([200, 400])
     try:
+
         @cached(cache)
         def get_profile_wrapper(userID):
             return session.get(profileServiceURL + "/user/{}".format(userID))
-        response=get_profile_wrapper(args[0])
+
+        response = get_profile_wrapper(args[0])
         if response.status_code != 200:
             return {"error": "user not found"}, 400
         return func(*args, **kwargs)
@@ -29,6 +34,7 @@ def checkUser(
         print(e)
         traceback.print_tb(e.__traceback__)
         return {"error": "unable to retrieve user"}, 400
+
 
 @checkUser
 def postTransfer(userId):
@@ -39,9 +45,20 @@ def postTransfer(userId):
     """
     try:
         if validateTransferBody(connexion.request.json) is True:
-            if (transactionCheck:= makeTransaction(userId, connexion.request.json["amount"])) is not True:
+            if (
+                transactionCheck := makeTransaction(  # noqa: E231,E203,E999,E251,E261
+                    userId, connexion.request.json["amount"]
+                )
+            ) is not True:
                 print(transactionCheck)
-                return {"error": "error creating transaction: {}".format(transactionCheck["error"])}, 400
+                return (
+                    {
+                        "error": "error creating transaction: {}".format(
+                            transactionCheck["error"]
+                        )
+                    },
+                    400,
+                )
             transferId = dsHelper.putEntity(
                 Transfer(userId=userId, **connexion.request.json)
             )
@@ -51,6 +68,7 @@ def postTransfer(userId):
         print(e)
         traceback.print_tb(e.__traceback__)
         return False, 400
+
 
 @checkUser
 def getAllTransfers(userId):
@@ -72,6 +90,7 @@ def getAllTransfers(userId):
         return False, 400
     return None
 
+
 @checkUser
 def getTransfer(userId, transferId):
     """get transfer in db by Entity id
@@ -89,6 +108,7 @@ def getTransfer(userId, transferId):
         print(e)
         traceback.print_tb(e.__traceback__)
         return False, 400
+
 
 @checkUser
 def updateTransfer(userId, transferId):
@@ -110,6 +130,7 @@ def updateTransfer(userId, transferId):
         traceback.print_tb(e.__traceback__)
         return False, 400
     return None
+
 
 @checkUser
 def deleteTransfer(userId, transferId):
@@ -152,9 +173,7 @@ def makeTransaction(
     userId,
     amount,
     transactionType="debit",
-    transactionServiceURL=os.getenv(
-        "TRANSACTION_SVC_URL", "http://localhost:5050"
-    ),
+    transactionServiceURL=os.getenv("TRANSACTION_SVC_URL", "http://localhost:5050"),
 ):
     session = make_request_session([201, 400])
     headers = {"Content-type": "application/json", "Accept": "text/plain"}
