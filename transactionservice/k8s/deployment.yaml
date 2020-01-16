@@ -15,6 +15,13 @@ spec:
       containers:
         - name: transaction-app-container
           image: transactionservice
+          resources:
+            limits:
+              cpu: "400m"
+              memory: 512Mi
+            requests:
+              cpu: "200m"
+              memory: 256Mi
           ports:
             - name: http
               containerPort: 5050
@@ -26,6 +33,8 @@ spec:
                   key: env.project-id
             - name: "GOOGLE_APPLICATION_CREDENTIALS_PATH"
               value: "/var/goog/secrets/service-acc.json"
+            - name: PROFILE_SVC_URL
+              value: "http://go-app-svc.default.svc.cluster.local:8080"
           volumeMounts:
             - name: "service-account"
               mountPath: "/var/goog/secrets"

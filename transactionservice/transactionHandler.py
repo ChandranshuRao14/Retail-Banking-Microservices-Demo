@@ -1,7 +1,12 @@
-import json, traceback
+import json
+import traceback
+import os
 import connexion
 from transaction import Transaction
 from datastore import datastoreHelper
+from requestsUtil import make_request_session
+
+dsHelper = datastoreHelper()
 
 
 def postTransaction(userId):
@@ -11,13 +16,30 @@ def postTransaction(userId):
         [Response] -- [id of the newly inserted datastore entity,status code]
     """
     try:
-        if validateTransactionBody(connexion.request.json) is True:
-            transactionId = datastoreHelper().putEntity(
-                Transaction(userId=userId, **connexion.request.json)
-            )
-            return {"transactionId": transactionId}, 201
-        else:
+        if validateTransactionBody(connexion.request.json) is not True:
             return validateTransactionBody(connexion.request.json), 400
+        userData = getUserData(userId)
+        if not userData:
+            return {"error": "user not found"}, 400
+        if connexion.request.json["transactionType"] == "credit":
+            userData["AccountBalance"] += int(connexion.request.json["amount"])
+        elif connexion.request.json["transactionType"] == "debit" and (
+            int(userData["AccountBalance"])
+            - int(connexion.request.json["amount"])
+            < 0
+        ):
+            return (
+                {
+                    "error": "user does not have enough account balance for this transaction"  # noqa: E501
+                },
+                400,
+            )
+        userData["AccountBalance"] -= int(connexion.request.json["amount"])
+        updateUserData(userData)
+        transactionId = dsHelper.putEntity(
+            Transaction(userId=userId, **connexion.request.json)
+        )
+        return {"transactionId": transactionId}, 201
     except Exception as e:
         print(e)
         traceback.print_tb(e.__traceback__)
@@ -31,7 +53,10 @@ def getAllTransactions(userId):
         [Response] -- [array transactions in db,response code]
     """
     try:
-        transactions = datastoreHelper().getEntityByFilter(
+        userData = getUserData(userId)
+        if not userData:
+            return {"error": "user not found"}, 400
+        transactions = dsHelper.getEntityByFilter(
             [["deleted", "=", False], ["userId", "=", userId]]
         )
         for transaction in transactions:
@@ -51,7 +76,10 @@ def getTransaction(transactionId, userId):
         [Response] -- [transaction with id,response code]
     """
     try:
-        transaction = datastoreHelper().getEntity(transactionId)
+        userData = getUserData(userId)
+        if not userData:
+            return {"error": "user not found"}, 400
+        transaction = dsHelper.getEntity(transactionId)
         transaction.get_dict().pop("deleted", None)
         return transaction.get_dict(), 200
     except Exception as e:
@@ -68,8 +96,12 @@ def updateTransaction(transactionId, userId):
     """
     try:
         if validateTransactionBody(connexion.request.json) is True:
-            transaction = datastoreHelper().updateEntity(
-                transactionId, Transaction(userId=userId, **connexion.request.json)
+            userData = getUserData(userId)
+            if not userData:
+                return {"error": "user not found"}, 400
+            transaction = dsHelper.updateEntity(
+                transactionId,
+                Transaction(userId=userId, **connexion.request.json),
             )
             transaction.get_dict().pop("deleted", None)
             return transaction.get_dict(), 200
@@ -84,9 +116,12 @@ def updateTransaction(transactionId, userId):
 
 def deleteTransaction(transactionId, userId):
     try:
-        transaction = datastoreHelper().getEntity(transactionId)
+        userData = getUserData(userId)
+        if not userData:
+            return {"error": "user not found"}, 400
+        transaction = dsHelper.getEntity(transactionId)
         transaction.deleted = True
-        datastoreHelper().updateEntity(transactionId, transaction)
+        dsHelper.updateEntity(transactionId, transaction)
         return True, 204
     except Exception as e:
         print(e)
@@ -118,3 +153,39 @@ def validateTransactionBody(data):
 
     return True
 
+
+def getUserData(
+    userId,
+    profileServiceURL=os.getenv("PROFILE_SVC_URL", "http://localhost:8080"),
+):
+    try:
+        session = make_request_session([200, 400])
+        response = session.get(profileServiceURL + "/user/{}".format(userId))
+        if response.status_code != 200:
+            return False
+        return response.json()
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return {"error": "unable to retrieve user"}, 400
+
+
+def updateUserData(
+    userData,
+    profileServiceURL=os.getenv("PROFILE_SVC_URL", "http://localhost:8080"),
+):
+    try:
+        session = make_request_session([200, 400])
+        headers = {"Content-type": "application/json", "Accept": "text/plain"}
+        response = session.put(
+            profileServiceURL + "/user/{}".format(userData["UserID"]),
+            data=json.dumps(userData),
+            headers=headers,
+        )
+        if response.status_code != 200:
+            return False
+        return True
+    except Exception as e:
+        print(e)
+        traceback.print_tb(e.__traceback__)
+        return {"error": "unable to update user data"}, 400

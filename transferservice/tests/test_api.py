@@ -8,6 +8,7 @@ VALID_TRANSFER["amount"] = "100"
 VALID_TRANSFER["routingNumber"] = "200"
 
 EXAMPLE_USER_ID = "123"
+EXAMPLE_USER_ID_NO_BALANCE = "1234"
 
 INVALID_TRANSFER_LESS_KEYS = dict()
 INVALID_TRANSFER_LESS_KEYS["accountNumber"] = "100"
@@ -48,6 +49,19 @@ def test_post_transfer(client):
     assert post_response.status_code == 201
     data = post_response.get_json()
     assert "transferId" in [*data]
+
+
+def test_post_transfer_no_balance(client):
+
+    headers = {"content-type": "application/json"}
+    post_response = client.post(
+        "/test/api/transfer/{}".format(EXAMPLE_USER_ID_NO_BALANCE),
+        data=json.dumps(VALID_TRANSFER),
+        headers=headers,
+    )
+    assert post_response.status_code == 400
+    data = post_response.get_json()
+    assert "error" in [*data]
 
 
 def test_post_transfer_fail_required_keys(client):
@@ -92,7 +106,6 @@ def test_get_transfer(client):
     data = post_response.get_json()
     assert "transferId" in [*data]
     transferId = data["transferId"]
-
     get_response = client.get(
         "/test/api/transfer/{}/{}".format(EXAMPLE_USER_ID, transferId)
     )
@@ -106,6 +119,8 @@ def test_get_transfer(client):
 def test_get_transfer_fail(client):
     get_response = client.get("/test/api/transfer/1/1")
     assert get_response.status_code == 400
+    data = get_response.get_json()
+    assert "error" in [*data]
 
 
 """

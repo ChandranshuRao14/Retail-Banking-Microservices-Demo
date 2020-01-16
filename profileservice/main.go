@@ -98,7 +98,8 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("%+v\n", user)))
+	res, _ := json.Marshal(&user)
+	w.Write(res)
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
