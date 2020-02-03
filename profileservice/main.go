@@ -47,12 +47,8 @@ func main() {
 			fmt.Printf("Can't create service account credentials from json file: %v\n", err)
 			return
 		}
-	} else if data, exists := os.LookupEnv("GOOGLE_APPLICATION_CREDENTIALS_JSON"); exists {
-		if err != nil {
-			fmt.Printf("Can't read json file: %v\n", err)
-			return
-		}
-		creds, err = google.CredentialsFromJSON(ctx, []byte(data), datastore.ScopeDatastore)
+	} else if value, exists := os.LookupEnv("GOOGLE_APPLICATION_CREDENTIALS_JSON"); exists {
+		creds, err = google.CredentialsFromJSON(ctx, []byte(value), datastore.ScopeDatastore)
 		if err != nil {
 			fmt.Printf("Can't create service account credentials from env var: %v\n", err)
 			return
@@ -102,7 +98,8 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Write([]byte(fmt.Sprintf("%+v\n", user)))
+	res, _ := json.Marshal(&user)
+	w.Write(res)
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
@@ -136,7 +133,6 @@ func readHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	res, _ := json.Marshal(&users[0])
-	enableCors(&w)
 	w.Write(res)
 }
 

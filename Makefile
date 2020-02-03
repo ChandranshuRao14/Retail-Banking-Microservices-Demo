@@ -1,7 +1,7 @@
 SHELL := /usr/bin/env bash
 .PHONY: lint_test_python
 lint_test_python:
-	docker run --rm -v "$(CURDIR)":/apps alpine/flake8:3.5.0 --config=./utils/lint/flake8 transferservice
+	docker run --rm -v "$(CURDIR)":/apps alpine/flake8:3.5.0 --config=./utils/lint/flake8 transferservice transactionservice e2e-loadtest
 .PHONY: lint_test_go
 lint_test_go:
 	docker run --rm -v "$(CURDIR)":/data cytopia/golint profileservice

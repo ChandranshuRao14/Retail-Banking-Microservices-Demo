@@ -28,6 +28,8 @@ build:
       context: ./transactionservice/
       docker:
         dockerfile: Dockerfile-prod
+    - image: loadgen
+      context: ./e2e-loadtest/
 deploy:
   kubectl:
     manifests:
@@ -35,6 +37,7 @@ deploy:
       - ./profileservice/k8s/*
       - ./transferservice/k8s/*
       - ./transactionservice/k8s/*
+      - ./e2e-loadtest/k8s/*
 portForward:
   - resourceType: deployment
     resourceName: frontend
