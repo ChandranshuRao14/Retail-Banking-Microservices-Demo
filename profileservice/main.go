@@ -111,6 +111,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	res, _ := json.Marshal(&user)
+	enableCors(&w)
 	w.Write(res)
 }
 
@@ -191,4 +192,8 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Write([]byte(fmt.Sprintf("%+v\n", user)))
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
