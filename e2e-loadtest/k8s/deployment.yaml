@@ -18,8 +18,8 @@ spec:
           image: loadgen
           env:
             - name: PROFILE_SVC_URL
-              value: "go-app-svc:8080"
+              value: "http://go-app-svc:8080"
             - name: TRANSACTION_SVC_URL
-              value: "transaction-app-svc:5050"
+              value: "http://transaction-app-svc:5050"
             - name: TRANSFER_SVC_URL
-              value: "transfer-app-svc:5000"
+              value: "http://transfer-app-svc:5000"
