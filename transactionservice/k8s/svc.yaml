@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: transaction-app-svc
 spec:
+  type: ClusterIP
   selector:
     app: transaction-app
   ports:
-    - protocol: "TCP"
-      port: 5050
-      targetPort: 5050
-  type: LoadBalancer
+  - name: http
+    port: 5050
+    targetPort: 5050

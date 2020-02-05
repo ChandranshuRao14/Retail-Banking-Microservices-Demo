@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: transfer-app-svc
 spec:
+  type: ClusterIP
   selector:
     app: transfer-app
   ports:
-  - protocol: "TCP"
+  - name: http
     port: 5000
     targetPort: 5000
-  type: LoadBalancer
