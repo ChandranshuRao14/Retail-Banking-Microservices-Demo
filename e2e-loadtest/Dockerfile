@@ -3,4 +3,4 @@ WORKDIR loadgen
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
-ENTRYPOINT ["sh", "-c","sleep 10; locust --no-web -c 100"]
+ENTRYPOINT ["sh", "-c","sleep 10; locust --no-web -c 1000"]
