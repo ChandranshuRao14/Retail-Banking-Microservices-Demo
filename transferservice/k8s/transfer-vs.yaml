@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: fsi-transfer
+  namespace: fsi
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - http-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /api/transfer
+    route:
+    - destination:
+        host: transfer-app-svc
+        port:
+          number: 5000

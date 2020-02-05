@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: loadgen
+  namespace: fsi
 spec:
   selector:
     matchLabels:
@@ -17,8 +18,8 @@ spec:
           image: loadgen
           env:
             - name: PROFILE_SVC_URL
-              value: "http://go-app-svc.default.svc.cluster.local:8080"
+              value: "http://go-app-svc:8080"
             - name: TRANSACTION_SVC_URL
-              value: "http://transaction-app-svc.default.svc.cluster.local:5050"
+              value: "http://transaction-app-svc:5050"
             - name: TRANSFER_SVC_URL
-              value: "http://transfer-app-svc.default.svc.cluster.local:5000"
+              value: "http://transfer-app-svc:5000"

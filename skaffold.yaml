@@ -33,6 +33,7 @@ build:
 deploy:
   kubectl:
     manifests:
+      - ./istio/*
       - ./frontend/k8s/*
       - ./profileservice/k8s/*
       - ./transferservice/k8s/*
