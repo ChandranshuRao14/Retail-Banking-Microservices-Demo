@@ -13,6 +13,12 @@ spec:
     - uri:
         exact: /
     - uri:
+        exact: /transfer
+    - uri:
+        exact: /transactions
+    - uri:
+        prefix: /home
+    - uri:
         exact: /callback
     - uri:
         prefix: /static
