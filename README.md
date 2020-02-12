@@ -29,8 +29,22 @@
    - Run `skaffold dev --default-repo=gcr.io/[$PROJECT_ID]` for constantly watching code changes locally and rebuilding locally
    - Run `skaffold dev -p gcb --default-repo=gcr.io/[$PROJECT_ID]` for constantly watching code changes locally and rebuilding remotely
 
-8. Application should be available at istio-gateway external IP or localhost
-   - Frontend: localhost/istio-ingressgateway-ip:80
+8. Application URLs:
+   - App URL: 
+        - Local: http://localhost/ 
+        - Remote: http://{istio-ingressgateway-ip}
+   - Views:
+        - /home
+        - /about
+        - /transfer
+        - /transactions
+   - API Endpoints:
+        - /user: GET all users, POST new user
+        - /user/{userId}: GET, DELETE, PUT a user
+        - /api/transfer/{userId}: GET all user transfers, POST new user transfer
+        - /api/transfer/{userId}: {transferId}: GET, PUT, DELETE a transfer
+        - /api//transaction/{userId}: GET all user transactions, POST new user transaction
+        - /api/transaction/{userId}/{transactionId}: GET, PUT, DELETE a transaction
 
 ## frontend
 
