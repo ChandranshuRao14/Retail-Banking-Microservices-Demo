@@ -14,7 +14,7 @@ class Login extends Component<{}, { username: string, password: string }> {
     }
 
     handleClick(event) {
-        var apiBaseUrl = "http://localhost:8080/user/";
+        var apiBaseUrl = "http://localhost/user/";
         // var self = this;
         // var payload = {
         //     "email": this.state.username,
@@ -27,7 +27,7 @@ class Login extends Component<{}, { username: string, password: string }> {
                 console.log(response);
                 if (response.status === 200) {
                     console.log("Login successfull");
-                    window.location.href = username + "/home";
+                    window.location.href ="/home/"+username;
                 }
                 else if (response.status === 204) {
                     console.log("Username password do not match");
