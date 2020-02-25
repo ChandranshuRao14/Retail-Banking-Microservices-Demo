@@ -1,0 +1,76 @@
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: skaffold/v1
+kind: Config
+profiles:
+  # dev skaffold profile will deploy images to dev cluster
+  - name: dev
+    deploy:
+      kubeContext: gke_fsi-dev_us-central1-a_fsi-anthos-cluster-dev
+      kubectl:
+        manifests:
+          - ./istio/*
+          - ./frontend/*
+          - ./profileservice/*
+          - ./transferservice/*
+          - ./transactionservice/*
+          - ./loadgen/*
+    portForward:
+    - resourceType: deployment
+      resourceName: frontend
+      port: 80
+      localPort: 80
+    - resourceType: deployment
+      resourceName: profileservice
+      port: 8080
+      localPort: 8080
+    - resourceType: deployment
+      resourceName: transferservice
+      port: 5000
+      localPort: 5000
+    - resourceType: deployment
+      resourceName: transactionservice
+      port: 5050
+      localPort: 5050
+  # prod skaffold profile will deploy images to prod cluster
+  - name: prod
+    deploy:
+      kubeContext: gke_fsi-prod_us-central1-a_fsi-anthos-cluster-prod
+      kubectl:
+        manifests:
+          - ./istio/*
+          - ./frontend/*
+          - ./profileservice/*
+          - ./transferservice/*
+          - ./transactionservice/*
+          - ./loadgen/*
+    portForward:
+    - resourceType: deployment
+      resourceName: frontend
+      port: 80
+      localPort: 80
+    - resourceType: deployment
+      resourceName: profileservice
+      port: 8080
+      localPort: 8080
+    - resourceType: deployment
+      resourceName: transferservice
+      port: 5000
+      localPort: 5000
+    - resourceType: deployment
+      resourceName: transactionservice
+      port: 5050
+      localPort: 5050
+    
