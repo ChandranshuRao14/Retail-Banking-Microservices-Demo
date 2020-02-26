@@ -20,5 +20,5 @@ steps:
   - '-c'
   - |
     gcloud container clusters get-credentials --zone=$_ZONE $_CLUSTER;
-    cd /app/ && skaffold build -p dev -f skaffold.yaml --default-repo=’gcr.io/$_PROJECT_ID';
-    cd /ops/ && skaffold deploy -p dev -f ops/skaffold.yaml --default-repo=’gcr.io/$_PROJECT_ID';
+    skaffold build -p dev -f app/skaffold.yaml --default-repo=’gcr.io/$_PROJECT_ID';
+    skaffold deploy -p dev -f ops/skaffold.yaml --default-repo=’gcr.io/$_PROJECT_ID';
