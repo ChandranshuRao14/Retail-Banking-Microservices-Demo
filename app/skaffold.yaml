@@ -25,6 +25,10 @@ profiles:
   # dev skaffold profile will build and push images to dev project
   - name: dev
     build:
+      googleCloudBuild:
+        diskSizeGb: 10
+        machineType: N1_HIGHCPU_8
+        timeout: 1200s
       artifacts:
       - image: frontend
         context: ./frontend/
